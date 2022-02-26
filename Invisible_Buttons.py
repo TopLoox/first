@@ -19,9 +19,13 @@ class InvisButtons:
                 (y_coord < mouse[1] < y_coord + self.__inactive_height):
             screen.blit(stroke, [x_coord, y_coord])
 
-            if click[0] == 1 and action is not None:
+            if click[0] == 1 and action is not None and (name == 'next' or name == 'back'):
                 pygame.mixer.Sound.play(button_sound)
-                if name == 'connect':
+                action(x)
+
+            elif click[0] == 1 and action is not None:
+                pygame.mixer.Sound.play(button_sound)
+                if name == 'connect' or name == 'sett_anima':
                     action(x, y)
                 else:
                     action()

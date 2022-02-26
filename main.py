@@ -15,19 +15,14 @@ from Chess_pieces.Castle import Castle
 from Chess_pieces.Queen import Queen
 from Chess_pieces.King import King
 
+from Chess_pieces.Figurestype import Figures, Black, White
+
+import server
+from client import send_server, createpotok
+from data import part
 import data
 
 pygame.init()
-
-# Списки для фигур
-black_pawn = [0] * 8
-white_pawn = [0] * 8
-black_castle = [0] * 2
-white_castle = [0] * 2
-black_horse = [0] * 2
-white_horse = [0] * 2
-black_el = [0] * 2
-white_el = [0] * 2
 
 # просто закоментируй, эти строчки
 coords = [175, 30, 230, 80]
@@ -38,17 +33,28 @@ clock = pygame.time.Clock()
 size = width, height = 1920, 1080
 screen = pygame.display.set_mode(size)
 
-lobbyrect = data.fight_image.get_rect()
-lobbyrect = lobbyrect.move([-75, 3100 + lobbyrect[1]])
+move_xy, zmove_xy, zzmove_xy, zzzmove_xy, move, after, after_but = [0 for _ in range(7)]
+okno, clo, leg, sc, game, hod, fig, check, load, key, bk, songs = [0 for _ in range(12)]
 
-move_xy, zmove_xy, zzmove_xy, zzzmove_xy, move, after = [0 for _ in range(6)]
-okno, clo, leg, sc, game, hod, fig, check, part, load = [0 for _ in range(10)]
+resolition = '1440'
+backgrounds = {'1440': [data.background11, data.background12, data.background13],
+               '1920': [data.background21, data.background22, data.background23]}
+
+lobbyrect = data.lobby_image.get_rect()
+lobbyrect = lobbyrect.move([-75, 3100 + lobbyrect[1]])
 
 scroll_button = InvisButtons(150, 150)
 Exit_button = InvisButtons(150, 150)
 Setting_button = InvisButtons(150, 150)
 Server_button = InvisButtons(150, 150)
 Single_button = InvisButtons(150, 150)
+Back_background = InvisButtons(20, 41)
+Next_background = InvisButtons(20, 41)
+Back_songs = InvisButtons(14, 27)
+Next_songs = InvisButtons(14, 27)
+Back_resolition = InvisButtons(14, 27)
+Next_resolition = InvisButtons(14, 27)
+Back_sett = InvisButtons(43, 143)
 
 yes_button = Button(screen, width / 2 - 190, height / 2 - 55, 150, 90, text='Yes', onClick=lambda: close_game())
 no_button = Button(screen, width / 2, height / 2 - 55, 200, 90, text='No', onClick=lambda: close_window_no())
@@ -58,40 +64,17 @@ close_button = Button(screen, width - 60 - coords[2], 30+coords[3], 30, 30,
 yes_button.hide()
 no_button.hide()
 
-# Пешки
-for i in range(8):
-    white_pawn[i], black_pawn[i] = Pawn(i, 6, 'White'), Pawn(i, 1, 'Black')
-
-# Ладьи
-white_castle[0], white_castle[1] = Castle(0, 7, 'White'), Castle(7, 7, 'White')
-black_castle[0], black_castle[1] = Castle(0, 0, 'Black'), Castle(7, 0, 'Black')
-
-# Кони
-white_horse[0], white_horse[1] = Horse(1, 7, 'White'), Horse(6, 7, 'White')
-black_horse[0], black_horse[1] = Horse(1, 0, 'Black'), Horse(6, 0, 'Black')
-
-# Слоны
-white_el[0], white_el[1] = Elephant(2, 7, 'White'), Elephant(5, 7, 'White')
-black_el[0], black_el[1] = Elephant(2, 0, 'Black'), Elephant(5, 0, 'Black')
-
-
-# Короли и Ферзи
-white_queen, black_queen = Queen(3, 7, 'White'), Queen(3, 0, 'Black')
-white_king, black_king = King(4, 7, 'White'), King(4, 0, 'Black')
-
-# Все существующие фигуры
-White = [white_castle, white_el, white_horse, [white_king], [white_queen], white_pawn]
-Black = [black_castle, black_el, black_horse, [black_king], [black_queen], black_pawn]
-Figures = [white_castle, white_el, white_horse, [white_king], [white_queen], white_pawn,
-           black_castle, black_el, black_horse, [black_king], [black_queen], black_pawn]
-
 # Доска
 b = Board()
 [[Board.place(b, j, i) for i in range(8)] for j in range(8)]
 
+createpotok()
+
 
 def print_chess():
-    [[k.pict() for k in f] for f in Figures]
+    for f in Figures:
+        for k in f.values():
+            k.pict()
 
 
 def close_window():
@@ -136,6 +119,16 @@ def scrolling():
     okno = 3
 
 
+def setts():
+    global okno
+    okno = -1
+
+
+def back_setts():
+    global okno, after_but
+    okno, after_but = 0, 0
+
+
 def print_text(mes, x, y, font_size, font_color=(0, 0, 0), font_type='font1.ttf'):
     global screen
     font_type = pygame.font.Font(font_type, font_size)
@@ -149,14 +142,13 @@ def blit_place():
 
 
 def connect(x, y):
-    global hod, fig, part, load
-    part = 0
+    global hod, fig, part, load, key
     pygame.time.delay(200)
     condition = True
     if part % 2 == 0:
         if hod == 0:
             for figs in White:
-                for m in figs:
+                for m in figs.values():
                     cord = m.coord()
 
                     if x == cord[0] and y == cord[1]:
@@ -169,14 +161,14 @@ def connect(x, y):
                 cord = fig.coord()
 
                 for figs in Figures:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
 
                         if ((cord[1] > cord2[1] >= y) and cord[0] == cord2[0]) or (x != cord[0]):
                             condition = False
 
                 for figs in Black:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
 
                         if (abs(cord[0] - cord2[0]) == 1) and (cord[1] - cord2[1] == 1) and \
@@ -187,7 +179,7 @@ def connect(x, y):
             if type(fig) == Castle:
                 cord = fig.coord()
                 for figs in Figures:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
 
                         if cord[0] == x:
@@ -209,7 +201,7 @@ def connect(x, y):
             if type(fig) == Elephant:
                 cord = fig.coord()
                 for figs in Figures:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
 
                         if m.coloured() == 'Black':
@@ -227,7 +219,7 @@ def connect(x, y):
             if type(fig) == King:
                 cord = fig.coord()
                 for figs in Figures:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
 
                         if m.coloured() == 'White':
@@ -237,7 +229,7 @@ def connect(x, y):
             if type(fig) == Queen:
                 cord = fig.coord()
                 for figs in Figures:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
 
                         if m.coloured() == 'Black':
@@ -265,36 +257,44 @@ def connect(x, y):
             if condition:
                 part += fig.motion(x, y)
                 for figs in Black:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
                         if cord2 == [x, y]:
                             m.eated()
-                print(fig.coloured(), fig.getType(), x, y)
+                for i in White:
+                    if fig in i.values():
+                        for j in i:
+                            if fig == i[j]:
+                                key = j
+                                break
+                        break
+                print(part)
+                send_server(f'{key} {x} {y} {part}')
             else:
                 fig.ret()
 
     else:
         if hod == 0:
             for figs in Black:
-                for m in figs:
+                for m in figs.values():
                     cord = m.coord()
 
                     if x == cord[0] and y == cord[1]:
                         hod, fig, load = 1, m, 1
         else:
-            hod. load = 0, 0
+            hod, load = 0, 0
             if type(fig) == Pawn:
                 cord = fig.coord()
 
                 for figs in Figures:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
 
                         if ((cord[1] < cord2[1] <= y) and cord[0] == cord2[0]) or (x != cord[0]):
                             condition = False
 
                 for figs in White:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
 
                         if (abs(cord[0] - cord2[0]) == 1) and (cord2[1] - cord[1] == 1) and (cord2 == [x, y]):
@@ -305,7 +305,7 @@ def connect(x, y):
             if type(fig) == Castle:
                 cord = fig.coord()
                 for figs in Figures:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
 
                         if cord[0] == x:
@@ -329,7 +329,7 @@ def connect(x, y):
             if type(fig) == Elephant:
                 cord = fig.coord()
                 for figs in Figures:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
 
                         if m.coloured() == 'White':
@@ -347,7 +347,7 @@ def connect(x, y):
             if type(fig) == King:
                 cord = fig.coord()
                 for figs in Figures:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
 
                         if m.coloured() == 'Black':
@@ -357,7 +357,7 @@ def connect(x, y):
             if type(fig) == Queen:
                 cord = fig.coord()
                 for figs in Figures:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
 
                         if m.coloured() == 'White':
@@ -385,14 +385,159 @@ def connect(x, y):
             if condition:
                 part += fig.motion(x, y)
                 for figs in White:
-                    for m in figs:
+                    for m in figs.values():
                         cord2 = m.coord()
                         if cord2 == [x, y]:
                             m.eated()
-                print(fig.coloured(), fig.getType(), x, y)
+                for i in Black:
+                    if fig in i.values():
+                        for j in i:
+                            if fig == i[j]:
+                                key = j
+                                break
+                        break
+                send_server(f'{key} {x} {y} {part}')
 
             else:
                 fig.ret()
+
+
+def scroll_anima(zmove_xy, zzmove_xy, zzzmove_xy, condition):
+    global lobbyrect
+    if condition:
+        factor = 2000
+    else:
+        factor = -2000
+
+    lobbyrect = lobbyrect.move([math.cos(move_xy / 60) * 30 - 75 - lobbyrect[0],
+                                math.sin(move_xy / 30) * 30 - 3100 +
+                                math.sin(zmove_xy / 60) * factor - lobbyrect[1]])
+
+    # Уход кнопок
+    screen.blit(data.placebutton3_1, (width / 4, height / 4 + math.sin(zmove_xy / 60) * factor - 2000))
+    screen.blit(data.single_button, (width / 4 + 39,
+                                     height / 4 + 62 + math.sin(zmove_xy / 60) * factor - 2000))
+    screen.blit(data.placebutton3_2, (width / 4, height / 4 + math.sin(zmove_xy / 60) * factor - 2000))
+    screen.blit(data.placebutton3_1, (width / 5 * 3,
+                                      height / 4 + math.sin(zmove_xy / 60) * factor - 2000))
+    screen.blit(data.server_button, (width / 5 * 3 + 39,
+                                     height / 4 + 62 + math.sin(zmove_xy / 60) * factor - 2000))
+    screen.blit(data.placebutton3_2, (width / 5 * 3, height / 4 + math.sin(zmove_xy / 60) * factor - 2000))
+    screen.blit(data.placebutton1_1, ((width / 2.2 - 316) - (math.sin(zmove_xy / 60) * factor * 2),
+                                      (height / 7 * 2.2 - 21 - 120) - (math.sin(move_xy / 450) * factor / 2) + 25))
+    screen.blit(data.play_button, ((width / 2.2 - 75) - (math.sin(zmove_xy / 60) * factor * 2),
+                                   (height / 7 * 2.2 - 120) - (math.sin(move_xy / 450) * factor / 2) + 25))
+    screen.blit(data.placebutton1_2, ((width / 2.2 - 316) - (math.sin(zmove_xy / 60) * factor * 2),
+                                      (height / 7 * 2.2 - 21 - 120) - (math.sin(move_xy / 450) * factor / 2) + 25))
+
+    if zmove_xy > 2:
+        screen.blit(data.placebutton2_2,
+                    ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * factor * 2),
+                     (height / 7 * 3.6 - 26 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25))
+        screen.blit(data.setting_button,
+                    ((width / 2 - 75) + (math.sin(zzmove_xy / 60) * 4000),
+                     (height / 7 * 3.6 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25))
+        screen.blit(data.placebutton2_1,
+                    ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * 4000),
+                     (height / 7 * 3.6 - 26 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25))
+    else:
+        screen.blit(data.placebutton2_2, (width / 2 - 132, height / 7 * 3.5 - 26 - 120))
+        screen.blit(data.setting_button, (width / 2 - 75, height / 7 * 3.5 - 120))
+        screen.blit(data.placebutton2_1, (width / 2 - 132, height / 7 * 3.5 - 26 - 120))
+
+    if zmove_xy > 3:
+        screen.blit(data.placebutton1_1,
+                    ((width / 2 - 316) - (math.sin(zzzmove_xy / 60) * factor * 2),
+                     (height / 7 * 5.2 - 21 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25))
+        screen.blit(data.exit_button,
+                    ((width / 2 - 75) - (math.sin(zzzmove_xy / 60) * factor * 2),
+                     (height / 7 * 5.2 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25))
+        screen.blit(data.placebutton1_2,
+                    ((width / 2 - 316) - (math.sin(zzzmove_xy / 60) * factor * 2),
+                     (height / 7 * 5.2 - 21 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25))
+    else:
+        screen.blit(data.placebutton1_1, (width / 2 - 316, height / 7 * 5 - 21 - 120))
+        screen.blit(data.exit_button, (width / 2 - 75, height / 7 * 5 - 120))
+        screen.blit(data.placebutton1_2, (width / 2 - 316, height / 7 * 5 - 21 - 120))
+
+    screen.blit(data.da_screen, (math.sin(zmove_xy / 30) * 146 - 146, (math.sin(zmove_xy / 60) * factor * 2) - 4000))
+    screen.blit(data.da2_screen, (width - math.sin(zmove_xy / 30) * 146, -(math.sin(zmove_xy / 60) * factor * 2)))
+
+
+def sett_anima(zzmove_xy, condition):
+    global lobbyrect
+    if condition:
+        factor = 2000
+    else:
+        factor = -2000
+
+    screen.blit(data.setting_menu, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900, height / 2 / 1.58))
+
+    if resolition == '1920':
+        screen.blit(data.resolition1, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900, height / 2 / 1.58))
+    else:
+        screen.blit(data.resolition2, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900, height / 2 / 1.58))
+
+    if bk == 0:
+        screen.blit(data.sett_background1,
+                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but, height / 2 / 1.58))
+    elif bk == 1:
+        screen.blit(data.sett_background2,
+                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but, height / 2 / 1.58))
+    else:
+        screen.blit(data.sett_background3,
+                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but, height / 2 / 1.58))
+
+    screen.blit(data.placebutton1_1, (width / 2 - 316,
+                                      (height / 7 * 2 - 21 - 120) - (math.sin(zzmove_xy / 30) * factor / 25) + 25))
+    screen.blit(data.play_button, (width / 2 - 75,
+                                   (height / 7 * 2 - 120) - (math.sin(zzmove_xy / 30) * factor / 25) + 25))
+    screen.blit(data.placebutton1_2, (width / 2 - 316,
+                                      (height / 7 * 2 - 21 - 120) - (math.sin(zzmove_xy / 30) * factor / 25) + 25))
+
+    screen.blit(data.placebutton2_2,
+                ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * factor * 2),
+                    (height / 7 * 3.7 - 26 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25 - after_but))
+    screen.blit(data.setting_button,
+                ((width / 2 - 75) + (math.sin(zzmove_xy / 60) * factor * 2),
+                    (height / 7 * 3.7 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25 - after_but))
+    screen.blit(data.placebutton2_1,
+                ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * factor * 2),
+                    (height / 7 * 3.7 - 26 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25 - after_but))
+
+    screen.blit(data.placebutton1_1,
+                (width / 2 - 316,
+                    (height / 7 * 5.2 - 21 - 120) + (math.sin(zzmove_xy / 30) * factor / 25) + 25 + after_but))
+    screen.blit(data.exit_button,
+                (width / 2 - 75,
+                    (height / 7 * 5.2 - 120) + (math.sin(zzmove_xy / 30) * factor / 25) + 25 + after_but))
+    screen.blit(data.placebutton1_2,
+                (width / 2 - 316,
+                    (height / 7 * 5.2 - 21 - 120) + (math.sin(zzmove_xy / 30) * factor / 25 + after_but) + 25))
+
+
+def Next(a):
+    global backgrounds, bk, resolition, songs
+    if a == 1 and bk < 2:
+        bk += 1
+    elif a == 2 and songs < 2:
+        songs += 1
+    elif a == 3 and resolition == '1920':
+        resolition = '1440'
+    elif a == 3 and resolition == '1440':
+        resolition = '1920'
+
+
+def Back(a):
+    global backgrounds, bk, resolition, songs
+    if a == 1 and bk > 0:
+        bk -= 1
+    elif a == 2 and songs > 0:
+        songs -= 1
+    elif a == 3 and resolition == '1920':
+        resolition = '1440'
+    elif a == 3 and resolition == '1440':
+        resolition = '1920'
 
 
 while 1:
@@ -405,93 +550,44 @@ while 1:
     if okno != 5:
         screen.blit(data.lobby_image, lobbyrect)
     else:
-        screen.blit(data.fight_image, (lobbyrect[0], lobbyrect[1] + 1000))
+        screen.blit(backgrounds[resolition][bk], (lobbyrect[0], lobbyrect[1] + 1000))
 
     if okno != 1:
         lobbyrect = lobbyrect.move([math.cos(move_xy / 60) * 30 - 75 - lobbyrect[0],
                                     math.sin(move_xy / 30) * 30 - 3100 - lobbyrect[1] + after])
 
-    if okno == 0:
-        screen.blit(data.placebutton1_1, ((width / 2 - 316), height / 7 * 2 - 21 - 120))
-        screen.blit(data.play_button, (width / 2 - 75, height / 7 * 2 - 120))
-        screen.blit(data.placebutton1_2, (width / 2 - 316, height / 7 * 2 - 21 - 120))
-        screen.blit(data.placebutton2_2, (width / 2 - 132, height / 7 * 3.5 - 26 - 120))
-        screen.blit(data.setting_button, (width / 2 - 75, height / 7 * 3.5 - 120))
-        screen.blit(data.placebutton2_1, (width / 2 - 132, height / 7 * 3.5 - 26 - 120))
-        screen.blit(data.placebutton1_1, (width / 2 - 316, height / 7 * 5 - 21 - 120))
-        screen.blit(data.exit_button, (width / 2 - 75, height / 7 * 5 - 120))
-        screen.blit(data.placebutton1_2, (width / 2 - 316, height / 7 * 5 - 21 - 120))
-
-        scroll_button.paint(width / 2 - 75, height / 7 * 2 - 120, data.button_sound, 0, 0, 'scroll', action=scroll)
-        Setting_button.paint(width / 2 - 75, height / 7 * 3.5 - 120, data.button_sound, 0, 0, 'scroll', action=scroll)
-        Exit_button.paint(width / 2 - 75, height / 7 * 5 - 120, data.button_sound, 0, 0, 'scroll', action=scroll)
-
     if okno == 1:
         if zmove_xy <= math.pi * 30:
-
-            # Движение бекграунда
             zmove_xy += 1
-            lobbyrect = lobbyrect.move([math.cos(move_xy / 60) * 30 - 75 - lobbyrect[0],
-                                        math.sin(move_xy / 30) * 30 - 3100 +
-                                        math.sin(zmove_xy / 60) * 2000 - lobbyrect[1]])
-
-            # Движение кнопок
-            screen.blit(data.placebutton3_1, (width / 4, height / 4 + math.sin(zmove_xy / 60) * 2000 - 2000))
-            screen.blit(data.single_button, (width / 4 + 39,
-                                             height / 4 + 62 + math.sin(zmove_xy / 60) * 2000 - 2000))
-            screen.blit(data.placebutton3_2, (width / 4, height / 4 + math.sin(zmove_xy / 60) * 2000 - 2000))
-            screen.blit(data.placebutton3_1, (width / 5 * 3,
-                                              height / 4 + math.sin(zmove_xy / 60) * 2000 - 2000))
-            screen.blit(data.server_button, (width / 5 * 3 + 39,
-                                             height / 4 + 62 + math.sin(zmove_xy / 60) * 2000 - 2000))
-            screen.blit(data.placebutton3_2, (width / 5 * 3, height / 4 + math.sin(zmove_xy / 60) * 2000 - 2000))
-
-            screen.blit(data.placebutton1_1, ((width / 2 - 316) - (math.sin(zmove_xy / 60) * 4000),
-                                              (height / 7 * 2 - 21 - 120) - (math.sin(move_xy / 450) * 1000) + 25))
-            screen.blit(data.play_button, ((width / 2 - 75) - (math.sin(zmove_xy / 60) * 4000),
-                                           (height / 7 * 2 - 120) - (math.sin(move_xy / 450) * 1000) + 25))
-            screen.blit(data.placebutton1_2, ((width / 2 - 316) - (math.sin(zmove_xy / 60) * 4000),
-                                              (height / 7 * 2 - 21 - 120) - (math.sin(move_xy / 450) * 1000) + 25))
-
-            if zmove_xy > 2:
-                zzmove_xy += 1
-                screen.blit(data.placebutton2_2,
-                            ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * 4000),
-                             (height / 7 * 3.5 - 26 - 120) - (math.sin(zzmove_xy / 450) * 1000) + 25))
-                screen.blit(data.setting_button,
-                            ((width / 2 - 75) + (math.sin(zzmove_xy / 60) * 4000),
-                             (height / 7 * 3.5 - 120) - (math.sin(zzmove_xy / 450) * 1000) + 25))
-                screen.blit(data.placebutton2_1,
-                            ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * 4000),
-                             (height / 7 * 3.5 - 26 - 120) - (math.sin(zzmove_xy / 450) * 1000) + 25))
-            else:
-                screen.blit(data.placebutton2_2, (width / 2 - 132, height / 7 * 3.5 - 26 - 120))
-                screen.blit(data.setting_button, (width / 2 - 75, height / 7 * 3.5 - 120))
-                screen.blit(data.placebutton2_1, (width / 2 - 132, height / 7 * 3.5 - 26 - 120))
-
-            if zmove_xy > 3:
-                zzzmove_xy += 1
-                screen.blit(data.placebutton1_1,
-                            ((width / 2 - 316) - (math.sin(zzzmove_xy / 60) * 4000),
-                             (height / 7 * 5 - 21 - 120) - (math.sin(zzmove_xy / 450) * 1000) + 25))
-                screen.blit(data.exit_button,
-                            ((width / 2 - 75) - (math.sin(zzzmove_xy / 60) * 4000),
-                             (height / 7 * 5 - 120) - (math.sin(zzmove_xy / 450) * 1000) + 25))
-                screen.blit(data.placebutton1_2,
-                            ((width / 2 - 316) - (math.sin(zzzmove_xy / 60) * 4000),
-                             (height / 7 * 5 - 21 - 120) - (math.sin(zzmove_xy / 450) * 1000) + 25))
-            else:
-                screen.blit(data.placebutton1_1, (width / 2 - 316, height / 7 * 5 - 21 - 120))
-                screen.blit(data.exit_button, (width / 2 - 75, height / 7 * 5 - 120))
-                screen.blit(data.placebutton1_2, (width / 2 - 316, height / 7 * 5 - 21 - 120))
-
-            screen.blit(data.da_screen, (math.sin(zmove_xy / 30) * 146 - 146, (math.sin(zmove_xy / 60) * 4000) - 4000))
-            screen.blit(data.da2_screen, (width - math.sin(zmove_xy / 30) * 146, -(math.sin(zmove_xy / 60) * 4000)))
+            zzmove_xy += 1
+            zzzmove_xy += 1
+            scroll_anima(zmove_xy, zzmove_xy, zzzmove_xy, True)
 
         else:
             after = math.sin(zmove_xy / 60) * 2000
             zmove_xy, zzmove_xy, zzzmove_xy = 0, 0, 0
             okno = 2
+
+    # Выдвижение настроек
+    if okno == -1:
+        if zmove_xy <= math.pi * 15:
+            zmove_xy += 1
+            zzmove_xy += 1
+            zzzmove_xy += 1
+            sett_anima(zzmove_xy, True)
+        else:
+            after_but = (math.sin(zzmove_xy / 30) * 2000 / 25) + 25
+            zmove_xy, zzmove_xy = 0, 0
+            okno = -2
+
+    if okno == -3:
+        if zmove_xy <= math.pi * 15:
+            zmove_xy += 1
+            zzmove_xy += 1
+            zzzmove_xy += 1
+            sett_anima(zzmove_xy, False)
+        else:
+            after_but, zmove_xy, zzmove_xy, okno = 0, 0, 0, 0
 
     if okno == 2 and clo == 0:
         # Кнопки меню выбора между сервером и одиночной игрой
@@ -504,13 +600,55 @@ while 1:
         Server_button.paint(width / 4 + 39, height / 4 + 62, data.button_sound, 0, 0, 'scrolling', action=scrolling)
         Single_button.paint(width / 5 * 3 + 39, height / 4 + 62, data.button_sound, 0, 0, 'scrolling', action=scrolling)
 
-        # screen.blit(place_image, [0, -30])
+        # screen.blit(data.place_image, [0, -30])
         # blit_place()
         # print_chess()
 
+    if okno == 0 or okno == -2:
+        screen.blit(data.placebutton1_1, ((width / 2 - 316), height / 7 * 2 - 21 - 120 - after_but / 1.9))
+        screen.blit(data.play_button, (width / 2 - 75, height / 7 * 2 - 120 - after_but / 1.9))
+        screen.blit(data.placebutton1_2, (width / 2 - 316, height / 7 * 2 - 21 - 120 - after_but / 1.9))
+        screen.blit(data.placebutton1_1, (width / 2 - 316, height / 7 * 5.2 - 21 - 120 + after_but))
+        screen.blit(data.exit_button, (width / 2 - 75, height / 7 * 5.2 - 120 + after_but))
+        screen.blit(data.placebutton1_2, (width / 2 - 316, height / 7 * 5.2 - 21 - 120 + after_but))
+
+        if okno == -2:
+            screen.blit(data.setting_menu, (1750 - 900, height / 2 / 1.58))
+
+            if resolition == '1920':
+                screen.blit(data.resolition1, (1750 - 900, height / 2 / 1.58))
+            else:
+                screen.blit(data.resolition2, (1750 - 900, height / 2 / 1.58))
+
+            if bk == 0:
+                screen.blit(data.sett_background1, (1750 - 900, height / 2 / 1.58))
+            elif bk == 1:
+                screen.blit(data.sett_background2, (1750 - 900, height / 2 / 1.58))
+            else:
+                screen.blit(data.sett_background3, (1750 - 900, height / 2 / 1.58))
+
+            Back_background.paint(width / 7 * 3.21, height / 1.89, data.button_sound, 1, 0, 'next', action=Back)
+            Next_background.paint(width / 7 * 3.832, height / 1.89, data.button_sound, 1, 0, 'next', action=Next)
+            Back_songs.paint(width / 7 * 3.265, height / 2.23, data.button_sound, 2, 0, 'next', action=Back)
+            Next_songs.paint(width / 7 * 3.785, height / 2.23, data.button_sound, 2, 0, 'next', action=Next)
+            Back_resolition.paint(width / 7 * 3.265, height / 2.5, data.button_sound, 3, 0, 'next', action=Back)
+            Next_resolition.paint(width / 7 * 3.785, height / 2.5, data.button_sound, 3, 0, 'next', action=Next)
+
+            Back_sett.paint(width / 7 * 3.294, height / 1.635, data.button_sound, 0, 0, 'back_setts', action=back_setts)
+        else:
+            Setting_button.paint(width / 2 - 75, height / 7 * 3.6 - 120, data.button_sound, 0, 0, 'setts',action=setts)
+            screen.blit(data.placebutton2_2, (width / 2 - 132, height / 7 * 3.6 - 26 - 120 + after_but))
+            screen.blit(data.setting_button, (width / 2 - 75, height / 7 * 3.6 - 120 + after_but))
+            screen.blit(data.placebutton2_1, (width / 2 - 132, height / 7 * 3.6 - 26 - 120 + after_but))
+
+        scroll_button.paint(width / 2 - 75, height / 7 * 2 - 120 - after_but,
+                            data.button_sound, 0, 0, 'scroll', action=scroll)
+        Exit_button.paint(width / 2 - 75, height / 7 * 5.2 - 120 + after_but,
+                          data.button_sound, 0, 0, 'scroll', action=scroll)
+
     if okno == 2 and clo == 0 and check == 0:
-        # check = 1
-        # blit_place()
+        check = 1
+        blit_place()
         pass
 
     if load == 1:
