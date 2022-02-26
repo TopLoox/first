@@ -61,20 +61,20 @@ class Pawn:
     def pict(self):
         if self.__type == 0:
             if self.__colour == 'White':
-                screen.blit(white, (self.__x * 75 + 650, self.__y * 75 + 200))
+                screen.blit(white, (self.__x * 90 + 600, self.__y * 90 + 150))
             else:
-                screen.blit(black, (self.__x * 75 + 650, self.__y * 75 + 200))
+                screen.blit(black, (self.__x * 90 + 600, self.__y * 90 + 150))
 
     def movement_pict(self):
         self.__type = 1
 
         if self.__colour == 'White':
             mouse = pygame.mouse.get_pos()
-            screen.blit(white, (mouse[0] - 37.5, mouse[1] - 37.5))
+            screen.blit(white, (mouse[0] - 45, mouse[1] - 45))
 
         else:
             mouse = pygame.mouse.get_pos()
-            screen.blit(black, (mouse[0] - 37.5, mouse[1] - 37.5))
+            screen.blit(black, (mouse[0] - 45, mouse[1] - 45))
 
     def eated(self):
         self.__x = -1
