@@ -33,7 +33,7 @@ clock = pygame.time.Clock()
 size = width, height = 1920, 1080
 screen = pygame.display.set_mode(size)
 
-move_xy, zmove_xy, zzmove_xy, zzzmove_xy, move, after, after_but = [0 for _ in range(7)]
+move_xy, zmove_xy, zzmove_xy, zzzmove_xy, move, after, after_but, after_but2, after_but3, after_but4 = [0 for _ in range(10)]
 okno, clo, leg, sc, game, hod, fig, check, load, key, bk, songs = [0 for _ in range(12)]
 
 resolition = '1440'
@@ -54,7 +54,7 @@ Back_songs = InvisButtons(14, 27)
 Next_songs = InvisButtons(14, 27)
 Back_resolition = InvisButtons(14, 27)
 Next_resolition = InvisButtons(14, 27)
-Back_sett = InvisButtons(43, 143)
+Back_sett = InvisButtons(143, 43)
 
 yes_button = Button(screen, width / 2 - 190, height / 2 - 55, 150, 90, text='Yes', onClick=lambda: close_game())
 no_button = Button(screen, width / 2, height / 2 - 55, 200, 90, text='No', onClick=lambda: close_window_no())
@@ -126,7 +126,7 @@ def setts():
 
 def back_setts():
     global okno, after_but
-    okno, after_but = 0, 0
+    okno = -3
 
 
 def print_text(mes, x, y, font_size, font_color=(0, 0, 0), font_type='font1.ttf'):
@@ -403,7 +403,7 @@ def connect(x, y):
 
 
 def scroll_anima(zmove_xy, zzmove_xy, zzzmove_xy, condition):
-    global lobbyrect
+    global lobbyrect, move_xy
     if condition:
         factor = 2000
     else:
@@ -423,100 +423,90 @@ def scroll_anima(zmove_xy, zzmove_xy, zzzmove_xy, condition):
     screen.blit(data.server_button, (width / 5 * 3 + 39,
                                      height / 4 + 62 + math.sin(zmove_xy / 60) * factor - 2000))
     screen.blit(data.placebutton3_2, (width / 5 * 3, height / 4 + math.sin(zmove_xy / 60) * factor - 2000))
-    screen.blit(data.placebutton1_1, ((width / 2.2 - 316) - (math.sin(zmove_xy / 60) * factor * 2),
-                                      (height / 7 * 2.2 - 21 - 120) - (math.sin(move_xy / 450) * factor / 2) + 25))
-    screen.blit(data.play_button, ((width / 2.2 - 75) - (math.sin(zmove_xy / 60) * factor * 2),
-                                   (height / 7 * 2.2 - 120) - (math.sin(move_xy / 450) * factor / 2) + 25))
-    screen.blit(data.placebutton1_2, ((width / 2.2 - 316) - (math.sin(zmove_xy / 60) * factor * 2),
-                                      (height / 7 * 2.2 - 21 - 120) - (math.sin(move_xy / 450) * factor / 2) + 25))
+    screen.blit(data.placebutton1_1, ((width / 2 - 316) - (math.sin(zmove_xy / 60) * factor * 2),
+                                      (height / 7 * 2 - 21 - 120) - (math.sin(zmove_xy / 450) * factor / 2)))
+    screen.blit(data.play_button, ((width / 2 - 75) - (math.sin(zmove_xy / 60) * factor * 2),
+                                   (height / 7 * 2 - 120) - (math.sin(zmove_xy / 450) * factor / 2)))
+    screen.blit(data.placebutton1_2, ((width / 2 - 316) - (math.sin(zmove_xy / 60) * factor * 2),
+                                      (height / 7 * 2 - 21 - 120) - (math.sin(zmove_xy / 450) * factor / 2)))
 
-    if zmove_xy > 2:
-        screen.blit(data.placebutton2_2,
-                    ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * factor * 2),
-                     (height / 7 * 3.6 - 26 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25))
-        screen.blit(data.setting_button,
-                    ((width / 2 - 75) + (math.sin(zzmove_xy / 60) * 4000),
-                     (height / 7 * 3.6 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25))
-        screen.blit(data.placebutton2_1,
-                    ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * 4000),
-                     (height / 7 * 3.6 - 26 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25))
-    else:
-        screen.blit(data.placebutton2_2, (width / 2 - 132, height / 7 * 3.5 - 26 - 120))
-        screen.blit(data.setting_button, (width / 2 - 75, height / 7 * 3.5 - 120))
-        screen.blit(data.placebutton2_1, (width / 2 - 132, height / 7 * 3.5 - 26 - 120))
-
-    if zmove_xy > 3:
-        screen.blit(data.placebutton1_1,
-                    ((width / 2 - 316) - (math.sin(zzzmove_xy / 60) * factor * 2),
-                     (height / 7 * 5.2 - 21 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25))
-        screen.blit(data.exit_button,
-                    ((width / 2 - 75) - (math.sin(zzzmove_xy / 60) * factor * 2),
-                     (height / 7 * 5.2 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25))
-        screen.blit(data.placebutton1_2,
-                    ((width / 2 - 316) - (math.sin(zzzmove_xy / 60) * factor * 2),
-                     (height / 7 * 5.2 - 21 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25))
-    else:
-        screen.blit(data.placebutton1_1, (width / 2 - 316, height / 7 * 5 - 21 - 120))
-        screen.blit(data.exit_button, (width / 2 - 75, height / 7 * 5 - 120))
-        screen.blit(data.placebutton1_2, (width / 2 - 316, height / 7 * 5 - 21 - 120))
+    screen.blit(data.placebutton2_2,
+                ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * factor * 2),
+                    (height / 7 * 3.6 - 26 - 120) - (math.sin(zzmove_xy / 450) * factor / 2)))
+    screen.blit(data.setting_button,
+                ((width / 2 - 75) + (math.sin(zzmove_xy / 60) * 4000),
+                    (height / 7 * 3.6 - 120) - (math.sin(zzmove_xy / 450) * factor / 2)))
+    screen.blit(data.placebutton2_1,
+                ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * 4000),
+                    (height / 7 * 3.6 - 26 - 120) - (math.sin(zzmove_xy / 450) * factor / 2)))
+    screen.blit(data.placebutton1_1,
+                ((width / 2 - 316) - (math.sin(zzzmove_xy / 60) * factor * 2),
+                    (height / 7 * 5.2 - 21 - 120) - (math.sin(zzmove_xy / 450) * factor / 2)))
+    screen.blit(data.exit_button,
+                ((width / 2 - 75) - (math.sin(zzzmove_xy / 60) * factor * 2),
+                    (height / 7 * 5.2 - 120) - (math.sin(zzmove_xy / 450) * factor / 2)))
+    screen.blit(data.placebutton1_2,
+                ((width / 2 - 316) - (math.sin(zzzmove_xy / 60) * factor * 2),
+                    (height / 7 * 5.2 - 21 - 120) - (math.sin(zzmove_xy / 450) * factor / 2)))
 
     screen.blit(data.da_screen, (math.sin(zmove_xy / 30) * 146 - 146, (math.sin(zmove_xy / 60) * factor * 2) - 4000))
     screen.blit(data.da2_screen, (width - math.sin(zmove_xy / 30) * 146, -(math.sin(zmove_xy / 60) * factor * 2)))
 
 
 def sett_anima(zzmove_xy, condition):
-    global lobbyrect
+    global lobbyrect, after_but
     if condition:
         factor = 2000
     else:
         factor = -2000
 
-    screen.blit(data.setting_menu, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900, height / 2 / 1.58))
+    screen.blit(data.setting_menu, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
 
     if resolition == '1920':
-        screen.blit(data.resolition1, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900, height / 2 / 1.58))
+        screen.blit(data.resolition1, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900  + after_but4, height / 2 / 1.7))
     else:
-        screen.blit(data.resolition2, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900, height / 2 / 1.58))
+        screen.blit(data.resolition2, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900  + after_but4, height / 2 / 1.7))
 
     if bk == 0:
         screen.blit(data.sett_background1,
-                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but, height / 2 / 1.58))
+                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900  + after_but4, height / 2 / 1.7))
     elif bk == 1:
         screen.blit(data.sett_background2,
-                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but, height / 2 / 1.58))
+                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900  + after_but4, height / 2 / 1.7))
     else:
         screen.blit(data.sett_background3,
-                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but, height / 2 / 1.58))
+                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
 
     screen.blit(data.placebutton1_1, (width / 2 - 316,
-                                      (height / 7 * 2 - 21 - 120) - (math.sin(zzmove_xy / 30) * factor / 25) + 25))
+                                      (height / 7 * 2 - 21 - 120) - (math.sin(zzmove_xy / 30) * factor / 25) - after_but))
     screen.blit(data.play_button, (width / 2 - 75,
-                                   (height / 7 * 2 - 120) - (math.sin(zzmove_xy / 30) * factor / 25) + 25))
+                                   (height / 7 * 2 - 120) - (math.sin(zzmove_xy / 30) * factor / 25) - after_but))
     screen.blit(data.placebutton1_2, (width / 2 - 316,
-                                      (height / 7 * 2 - 21 - 120) - (math.sin(zzmove_xy / 30) * factor / 25) + 25))
+                                      (height / 7 * 2 - 21 - 120) - (math.sin(zzmove_xy / 30) * factor / 25) - after_but))
 
     screen.blit(data.placebutton2_2,
-                ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * factor * 2),
-                    (height / 7 * 3.7 - 26 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25 - after_but))
+                ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * factor * 2) + after_but2,
+                    (height / 7 * 3.7 - 26 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) - after_but3 - 15))
     screen.blit(data.setting_button,
-                ((width / 2 - 75) + (math.sin(zzmove_xy / 60) * factor * 2),
-                    (height / 7 * 3.7 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25 - after_but))
+                ((width / 2 - 75) + (math.sin(zzmove_xy / 60) * factor * 2) + after_but2,
+                    (height / 7 * 3.7 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) - after_but3 - 15))
     screen.blit(data.placebutton2_1,
-                ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * factor * 2),
-                    (height / 7 * 3.7 - 26 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) + 25 - after_but))
+                ((width / 2 - 132) + (math.sin(zzmove_xy / 60) * factor * 2) + after_but2,
+                    (height / 7 * 3.7 - 26 - 120) - (math.sin(zzmove_xy / 450) * factor / 2) - after_but3 - 15))
 
     screen.blit(data.placebutton1_1,
                 (width / 2 - 316,
-                    (height / 7 * 5.2 - 21 - 120) + (math.sin(zzmove_xy / 30) * factor / 25) + 25 + after_but))
+                    (height / 7 * 5.2 - 21 - 120) + (math.sin(zzmove_xy / 30) * factor / 25) + after_but))
     screen.blit(data.exit_button,
                 (width / 2 - 75,
-                    (height / 7 * 5.2 - 120) + (math.sin(zzmove_xy / 30) * factor / 25) + 25 + after_but))
+                    (height / 7 * 5.2 - 120) + (math.sin(zzmove_xy / 30) * factor / 25) + after_but))
     screen.blit(data.placebutton1_2,
                 (width / 2 - 316,
-                    (height / 7 * 5.2 - 21 - 120) + (math.sin(zzmove_xy / 30) * factor / 25 + after_but) + 25))
+                    (height / 7 * 5.2 - 21 - 120) + (math.sin(zzmove_xy / 30) * factor / 25) + after_but))
 
 
 def Next(a):
+    pygame.time.delay(200)
     global backgrounds, bk, resolition, songs
     if a == 1 and bk < 2:
         bk += 1
@@ -529,6 +519,7 @@ def Next(a):
 
 
 def Back(a):
+    pygame.time.delay(200)
     global backgrounds, bk, resolition, songs
     if a == 1 and bk > 0:
         bk -= 1
@@ -576,8 +567,9 @@ while 1:
             zzzmove_xy += 1
             sett_anima(zzmove_xy, True)
         else:
-            after_but = (math.sin(zzmove_xy / 30) * 2000 / 25) + 25
-            zmove_xy, zzmove_xy = 0, 0
+            after_but, after_but4 = (math.sin(zzmove_xy / 30) * 2000 / 25), math.sin(zzmove_xy / 30) * 2000 * 0.875
+            after_but2, after_but3 = (math.sin(zzmove_xy / 60) * 4000), (math.sin(zzmove_xy / 450) * 1000)
+            zmove_xy, zzmove_xy, zzzmove_xy = 0, 0, 0
             okno = -2
 
     if okno == -3:
@@ -587,7 +579,7 @@ while 1:
             zzzmove_xy += 1
             sett_anima(zzmove_xy, False)
         else:
-            after_but, zmove_xy, zzmove_xy, okno = 0, 0, 0, 0
+            after_but, zmove_xy, zzmove_xy, zzzmove_xy, okno = 0, 0, 0, 0, 0
 
     if okno == 2 and clo == 0:
         # Кнопки меню выбора между сервером и одиночной игрой
@@ -605,46 +597,46 @@ while 1:
         # print_chess()
 
     if okno == 0 or okno == -2:
-        screen.blit(data.placebutton1_1, ((width / 2 - 316), height / 7 * 2 - 21 - 120 - after_but / 1.9))
-        screen.blit(data.play_button, (width / 2 - 75, height / 7 * 2 - 120 - after_but / 1.9))
-        screen.blit(data.placebutton1_2, (width / 2 - 316, height / 7 * 2 - 21 - 120 - after_but / 1.9))
+        screen.blit(data.placebutton1_1, ((width / 2 - 316), height / 7 * 2 - 21 - 120 - after_but))
+        screen.blit(data.play_button, (width / 2 - 75, height / 7 * 2 - 120 - after_but))
+        screen.blit(data.placebutton1_2, (width / 2 - 316, height / 7 * 2 - 21 - 120 - after_but))
         screen.blit(data.placebutton1_1, (width / 2 - 316, height / 7 * 5.2 - 21 - 120 + after_but))
         screen.blit(data.exit_button, (width / 2 - 75, height / 7 * 5.2 - 120 + after_but))
         screen.blit(data.placebutton1_2, (width / 2 - 316, height / 7 * 5.2 - 21 - 120 + after_but))
 
         if okno == -2:
-            screen.blit(data.setting_menu, (1750 - 900, height / 2 / 1.58))
+            screen.blit(data.setting_menu, (1750 - 900, height / 2 / 1.7))
 
             if resolition == '1920':
-                screen.blit(data.resolition1, (1750 - 900, height / 2 / 1.58))
+                screen.blit(data.resolition1, (1750 - 900, height / 2 / 1.7))
             else:
-                screen.blit(data.resolition2, (1750 - 900, height / 2 / 1.58))
+                screen.blit(data.resolition2, (1750 - 900, height / 2 / 1.7))
 
             if bk == 0:
-                screen.blit(data.sett_background1, (1750 - 900, height / 2 / 1.58))
+                screen.blit(data.sett_background1, (1750 - 900, height / 2 / 1.7))
             elif bk == 1:
-                screen.blit(data.sett_background2, (1750 - 900, height / 2 / 1.58))
+                screen.blit(data.sett_background2, (1750 - 900, height / 2 / 1.7))
             else:
-                screen.blit(data.sett_background3, (1750 - 900, height / 2 / 1.58))
+                screen.blit(data.sett_background3, (1750 - 900, height / 2 / 1.7))
 
-            Back_background.paint(width / 7 * 3.21, height / 1.89, data.button_sound, 1, 0, 'next', action=Back)
-            Next_background.paint(width / 7 * 3.832, height / 1.89, data.button_sound, 1, 0, 'next', action=Next)
-            Back_songs.paint(width / 7 * 3.265, height / 2.23, data.button_sound, 2, 0, 'next', action=Back)
-            Next_songs.paint(width / 7 * 3.785, height / 2.23, data.button_sound, 2, 0, 'next', action=Next)
-            Back_resolition.paint(width / 7 * 3.265, height / 2.5, data.button_sound, 3, 0, 'next', action=Back)
-            Next_resolition.paint(width / 7 * 3.785, height / 2.5, data.button_sound, 3, 0, 'next', action=Next)
+            Back_background.paint(width / 7 * 3.21, height / 1.98, data.button_sound, 1, 0, 'next', action=Back)
+            Next_background.paint(width / 7 * 3.832, height / 1.98, data.button_sound, 1, 0, 'next', action=Next)
+            Back_songs.paint(width / 7 * 3.265, height / 2.33, data.button_sound, 2, 0, 'next', action=Back)
+            Next_songs.paint(width / 7 * 3.785, height / 2.33, data.button_sound, 2, 0, 'next', action=Next)
+            Back_resolition.paint(width / 7 * 3.265, height / 2.64, data.button_sound, 3, 0, 'next', action=Back)
+            Next_resolition.paint(width / 7 * 3.785, height / 2.64, data.button_sound, 3, 0, 'next', action=Next)
 
-            Back_sett.paint(width / 7 * 3.294, height / 1.635, data.button_sound, 0, 0, 'back_setts', action=back_setts)
+            Back_sett.paint(width / 7 * 3.294, height / 1.7, data.button_sound, 0, 0, 'back_setts', action=back_setts)
         else:
             Setting_button.paint(width / 2 - 75, height / 7 * 3.6 - 120, data.button_sound, 0, 0, 'setts',action=setts)
             screen.blit(data.placebutton2_2, (width / 2 - 132, height / 7 * 3.6 - 26 - 120 + after_but))
             screen.blit(data.setting_button, (width / 2 - 75, height / 7 * 3.6 - 120 + after_but))
             screen.blit(data.placebutton2_1, (width / 2 - 132, height / 7 * 3.6 - 26 - 120 + after_but))
 
-        scroll_button.paint(width / 2 - 75, height / 7 * 2 - 120 - after_but,
+            scroll_button.paint(width / 2 - 75, height / 7 * 2 - 120 - after_but / 1.9,
                             data.button_sound, 0, 0, 'scroll', action=scroll)
-        Exit_button.paint(width / 2 - 75, height / 7 * 5.2 - 120 + after_but,
-                          data.button_sound, 0, 0, 'scroll', action=scroll)
+            Exit_button.paint(width / 2 - 75, height / 7 * 5.2 - 120 + after_but,
+                          data.button_sound, 0, 0, 'scroll', action=close_window)
 
     if okno == 2 and clo == 0 and check == 0:
         check = 1
