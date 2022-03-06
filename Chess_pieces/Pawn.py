@@ -1,5 +1,7 @@
 import pygame
 
+from data import moment
+
 screen = pygame.display.set_mode((1920, 1080))
 
 white = pygame.image.load('Image/White_Pawn.png') 
@@ -8,6 +10,7 @@ black = pygame.image.load('Image/Black_Pawn.png')
 
 class Pawn:
     def __init__(self, x, y, colour):
+        self.__moment = False
         self.__x = x
         self.__y = y
         self.__colour = colour
@@ -62,7 +65,7 @@ class Pawn:
     def pict(self):
         if self.__EAT:
             if self.__colour == 'White':
-                screen.blit(white, (247, 349))
+                screen.blit(white, (247, 374))
             else:
                 screen.blit(black, (247, 544))
         else:
@@ -84,28 +87,37 @@ class Pawn:
             screen.blit(black, (mouse[0] - 45, mouse[1] - 45))
 
     def eated(self):
+        global moment
+        if self.__moment == False:
+            self.__moment = True
+            moment += 1
+            
         self.__EAT = True
-        self.__x = -1
-        self.__y = -1
+        self.__x = -10
+        self.__y = -10
 
     def ret(self):
         self.__type = 0
 
     def coloured(self):
         return self.__colour
+    
+    def CountMotion(self):
+        return self.__count_motion
 
     def revpict(self):
         if self.__EAT:
             if self.__colour == 'White':
                 screen.blit(white, (247, 544))
             else:
-                screen.blit(black, (247, 349))
+                screen.blit(black, (247, 374))
         else:
             if self.__type == 0:
                 if self.__colour == 'White':
-                    screen.blit(white, (self.__x * 90 + 600, self.__y * 90 + 150))
+                    screen.blit(white, (1230 - self.__x * 90, 780 - self.__y * 90))
                 else:
-                    screen.blit(black, (self.__x * 90 + 600, self.__y * 90 + 150))
+                    screen.blit(black, (1230 - self.__x * 90, 780 - self.__y * 90))
+
 
     @staticmethod
     def gettype():

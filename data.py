@@ -3,6 +3,7 @@ import pygame
 pygame.init()
 
 # изображения
+stroke = pygame.image.load("Image/Blackout_place.png")
 close_paint = pygame.image.load('Image/close(30x30).jpg')
 lobby_image = pygame.image.load('Image/new_lobby2.png')
 background11 = pygame.image.load('Image/background.png')
@@ -44,3 +45,6 @@ runs = [run1, run2, run3]
 # звуки
 button_sound = pygame.mixer.Sound('Sounds/button.mp3')
 place_sound = pygame.mixer.Sound('Sounds/place.mp3')
+
+moment = 0
+after_coord = 1

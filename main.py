@@ -1,5 +1,6 @@
 import sys
 import math
+import time
 
 import pygame
 import pygame_widgets
@@ -35,9 +36,9 @@ screen = pygame.display.set_mode(size)
 move_xy, zmove_xy, zzmove_xy, zzzmove_xy, move, after, after_but, after_but2, after_but3, after_but4 = [0 for _ in range(10)]
 okno, clo, leg, sc, game, hod, fig, check, load, key, bk, songs = [0 for _ in range(12)]
 
-resolition = '1440'
-backgrounds = {'1440': [data.background11, data.background12, data.background13],
-               '1920': [data.background21, data.background22, data.background23]}
+resolition = '1920'
+backgrounds = {'1920': [data.background11, data.background12, data.background13],
+               '1440': [data.background21, data.background22, data.background23]}
 
 lobbyrect = data.lobby_image.get_rect()
 lobbyrect = lobbyrect.move([-75, 3100 + lobbyrect[1]])
@@ -316,6 +317,15 @@ def connect(x, y):
                             if (abs(cord[0] - cord2[0]) == 1) and (cord2[1] - cord[1] == 1) and (cord2 == [x, y]):
                                 part += fig.eat(x, y)
                                 m.eated()
+                                
+                                for i in Black:
+                                    if fig in i.values():
+                                        for j in i:
+                                            if fig == i[j]:
+                                                key = j
+                                                break
+                                        break
+                                send_server(f'{key} {x} {y} {part}')
                                 condition = False
 
                 if type(fig) == Castle:
@@ -664,10 +674,10 @@ while 1:
 
             screen.blit(data.go, (-(math.cos(zmove_xy / 12) * 2300) - 300, 0))
         
-    if okno == 2 and clo == 0 and check == 0:
-        check = 1
-        blit_place()
-        pass
+    # if okno == 2 and clo == 0 and check == 0:
+    #     check = 1
+    #     blit_place()
+    #     pass
 
     if load == 1:
         fig.movement_pict()
