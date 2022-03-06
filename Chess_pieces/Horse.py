@@ -62,6 +62,13 @@ class Horse:
         self.__x = -1
         self.__y = -1
 
+    def revpict(self):
+        if self.__type == 0:
+            if self.__colour == 'White':
+                screen.blit(white, (1230 - self.__x * 90, 780 - self.__y * 90))
+            else:
+                screen.blit(black, (1230 - self.__x * 90, 780 - self.__y * 90))
+
     @staticmethod
     def gettype():
         return 'Horse'

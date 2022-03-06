@@ -17,9 +17,8 @@ from Chess_pieces.King import King
 
 from Chess_pieces.Figurestype import Figures, Black, White
 
-import server
-from client import send_server, createpotok
-from data import part
+from client import getClr, getPart, send_server, createpotok, getSerb, part
+
 import data
 
 pygame.init()
@@ -68,13 +67,16 @@ no_button.hide()
 b = Board()
 [[Board.place(b, j, i) for i in range(8)] for j in range(8)]
 
-createpotok()
-
 
 def print_chess():
-    for f in Figures:
-        for k in f.values():
-            k.pict()
+    if getClr() == 'White':
+        for f in Figures:
+            for k in f.values():
+                k.pict()
+    else:
+        for f in Figures:
+            for k in f.values():
+                k.revpict()
 
 
 def close_window():
@@ -125,7 +127,7 @@ def setts():
 
 
 def back_setts():
-    global okno, after_but
+    global okno
     okno = -3
 
 
@@ -137,269 +139,284 @@ def print_text(mes, x, y, font_size, font_color=(0, 0, 0), font_type='font1.ttf'
 
 
 def blit_place():
-    [[InvisButtons.paint(b.board[row][line], 600 + (90 * row), 150 + (90 * line), data.place_sound,
+    if getClr() == 'White':
+        [[InvisButtons.paint(b.board[row][line], 600 + (90 * row), 150 + (90 * line), data.place_sound,
                          row, line, 'connect', action=connect) for row in range(8)] for line in range(8)]
+    elif getClr() == 'Black':
+        [[InvisButtons.paint(b.board[row][line], 1230 - (90 * row), 780 - (90 * line), data.place_sound,
+                         row, line, 'connect', action=connect) for row in range(8)] for line in range(8)]             
 
 
 def connect(x, y):
-    global hod, fig, part, load, key
+    global hod, fig, load, key, part
     pygame.time.delay(200)
     condition = True
-    if part % 2 == 0:
-        if hod == 0:
-            for figs in White:
-                for m in figs.values():
-                    cord = m.coord()
-
-                    if x == cord[0] and y == cord[1]:
-                        hod, fig, load = 1, m, 1
-
-        else:
-            hod = 0
-            load = 0
-            if type(fig) == Pawn:
-                cord = fig.coord()
-
-                for figs in Figures:
+    part = getPart()
+    if getClr() == 'White':
+        if part % 2 == 0:
+            if hod == 0:
+                for figs in White:
                     for m in figs.values():
-                        cord2 = m.coord()
+                        cord = m.coord()
 
-                        if ((cord[1] > cord2[1] >= y) and cord[0] == cord2[0]) or (x != cord[0]):
-                            condition = False
+                        if x == cord[0] and y == cord[1]:
+                            hod, fig, load = 1, m, 1
 
-                for figs in Black:
-                    for m in figs.values():
-                        cord2 = m.coord()
-
-                        if (abs(cord[0] - cord2[0]) == 1) and (cord[1] - cord2[1] == 1) and \
-                                (x == cord2[0]) and (y == cord2[1]):
-                            part += fig.eat(x, y)
-                            m.eated()
-
-            if type(fig) == Castle:
-                cord = fig.coord()
-                for figs in Figures:
-                    for m in figs.values():
-                        cord2 = m.coord()
-
-                        if cord[0] == x:
-                            if m.coloured() == 'Black':
-                                if ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)) and (cord[0] == cord2[0]):
-                                    condition = False
-                            else:
-                                if ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)) and (cord[0] == cord2[0]):
-                                    condition = False
-
-                        elif cord[1] == y:
-                            if m.coloured() == 'Black':
-                                if ((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and (cord[1] == cord2[1]):
-                                    condition = False
-                            else:
-                                if ((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and (cord[1] == cord2[1]):
-                                    condition = False
-
-            if type(fig) == Elephant:
-                cord = fig.coord()
-                for figs in Figures:
-                    for m in figs.values():
-                        cord2 = m.coord()
-
-                        if m.coloured() == 'Black':
-                            if (abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and \
-                                    (((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and
-                                     ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y))) or (abs(cord[0]-x) == 0):
-                                condition = False
-
-                        else:
-                            if (abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and \
-                                    (((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and
-                                     ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y))) or (abs(cord[0]-x) == 0):
-                                condition = False
-
-            if type(fig) == King:
-                cord = fig.coord()
-                for figs in Figures:
-                    for m in figs.values():
-                        cord2 = m.coord()
-
-                        if m.coloured() == 'White':
-                            if (cord2 == [x, y]) or (abs(cord[0]-x) > 1) or (abs(cord[1]-y) > 1):
-                                condition = False
-
-            if type(fig) == Queen:
-                cord = fig.coord()
-                for figs in Figures:
-                    for m in figs.values():
-                        cord2 = m.coord()
-
-                        if m.coloured() == 'Black':
-                            if ((abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and
-                                (((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and
-                                 ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)))) or \
-                                    ((cord[0] == x) and ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)) and
-                                     (cord[0] == cord2[0])) or ((cord[1] == y) and ((cord[0] < cord2[0] < x) or
-                                                                (cord[0] > cord2[0] > x)) and (cord[1] == cord2[1])):
-                                condition = False
-
-                        else:
-                            if ((abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and
-                                (((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and
-                                 ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)))) or \
-                                    ((cord[0] == x) and ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)) and
-                                     (cord[0] == cord2[0])) or ((cord[1] == y) and ((cord[0] < cord2[0] <= x) or
-                                                                (cord[0] > cord2[0] >= x)) and (cord[1] == cord2[1])):
-                                condition = False
-
-            if type(fig) == Horse:
-                if fig.testmotion(x, y) == 0:
-                    condition = False
-
-            if condition:
-                part += fig.motion(x, y)
-                for figs in Black:
-                    for m in figs.values():
-                        cord2 = m.coord()
-                        if cord2 == [x, y]:
-                            m.eated()
-                for i in White:
-                    if fig in i.values():
-                        for j in i:
-                            if fig == i[j]:
-                                key = j
-                                break
-                        break
-                print(part)
-                send_server(f'{key} {x} {y} {part}')
             else:
-                fig.ret()
+                hod = 0
+                load = 0
+                if type(fig) == Pawn:
+                    cord = fig.coord()
 
+                    for figs in Figures:
+                        for m in figs.values():
+                            cord2 = m.coord()
+
+                            if ((cord[1] > cord2[1] >= y) and cord[0] == cord2[0]) or (x != cord[0]):
+                                condition = False
+
+                    for figs in Black:
+                        for m in figs.values():
+                            cord2 = m.coord()
+
+                            if (abs(cord[0] - cord2[0]) == 1) and (cord[1] - cord2[1] == 1) and \
+                                    (x == cord2[0]) and (y == cord2[1]):
+                                part += fig.eat(x, y)
+                                m.eated()
+                                for i in White:
+                                    if fig in i.values():
+                                        for j in i:
+                                            if fig == i[j]:
+                                                key = j
+                                                break
+                                        break
+                                send_server(f'{key} {x} {y} {part}')
+                                condition = False
+
+                if type(fig) == Castle:
+                    cord = fig.coord()
+                    for figs in Figures:
+                        for m in figs.values():
+                            cord2 = m.coord()
+
+                            if cord[0] == x:
+                                if m.coloured() == 'Black':
+                                    if ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)) and (cord[0] == cord2[0]):
+                                        condition = False
+                                else:
+                                    if ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)) and (cord[0] == cord2[0]):
+                                        condition = False
+
+                            elif cord[1] == y:
+                                if m.coloured() == 'Black':
+                                    if ((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and (cord[1] == cord2[1]):
+                                        condition = False
+                                else:
+                                    if ((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and (cord[1] == cord2[1]):
+                                        condition = False
+
+                if type(fig) == Elephant:
+                    cord = fig.coord()
+                    for figs in Figures:
+                        for m in figs.values():
+                            cord2 = m.coord()
+
+                            if m.coloured() == 'Black':
+                                if (abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and \
+                                        (((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and
+                                        ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y))) or (abs(cord[0]-x) == 0):
+                                    condition = False
+
+                            else:
+                                if (abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and \
+                                        (((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and
+                                        ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y))) or (abs(cord[0]-x) == 0):
+                                    condition = False
+
+                if type(fig) == King:
+                    cord = fig.coord()
+                    for figs in Figures:
+                        for m in figs.values():
+                            cord2 = m.coord()
+
+                            if m.coloured() == 'White':
+                                if (cord2 == [x, y]) or (abs(cord[0]-x) > 1) or (abs(cord[1]-y) > 1):
+                                    condition = False
+
+                if type(fig) == Queen:
+                    cord = fig.coord()
+                    for figs in Figures:
+                        for m in figs.values():
+                            cord2 = m.coord()
+
+                            if m.coloured() == 'Black':
+                                if ((abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and
+                                    (((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and
+                                    ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)))) or \
+                                        ((cord[0] == x) and ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)) and
+                                        (cord[0] == cord2[0])) or ((cord[1] == y) and ((cord[0] < cord2[0] < x) or
+                                                                    (cord[0] > cord2[0] > x)) and (cord[1] == cord2[1])):
+                                    condition = False
+
+                            else:
+                                if ((abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and
+                                    (((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and
+                                    ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)))) or \
+                                        ((cord[0] == x) and ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)) and
+                                        (cord[0] == cord2[0])) or ((cord[1] == y) and ((cord[0] < cord2[0] <= x) or
+                                                                    (cord[0] > cord2[0] >= x)) and (cord[1] == cord2[1])):
+                                    condition = False
+
+                if type(fig) == Horse:
+                    if fig.testmotion(x, y) == 0:
+                        condition = False
+
+                if condition:
+                    part += fig.motion(x, y)
+                    for figs in Black:
+                        for m in figs.values():
+                            cord2 = m.coord()
+                            if cord2 == [x, y]:
+                                m.eated()
+                    for i in White:
+                        if fig in i.values():
+                            for j in i:
+                                if fig == i[j]:
+                                    key = j
+                                    break
+                            break
+                    send_server(f'{key} {x} {y} {part}')
+                else:
+                    fig.ret()
     else:
-        if hod == 0:
-            for figs in Black:
-                for m in figs.values():
-                    cord = m.coord()
-
-                    if x == cord[0] and y == cord[1]:
-                        hod, fig, load = 1, m, 1
-        else:
-            hod, load = 0, 0
-            if type(fig) == Pawn:
-                cord = fig.coord()
-
-                for figs in Figures:
+        if part % 2 == 1:
+            if hod == 0:
+                for figs in Black:
                     for m in figs.values():
-                        cord2 = m.coord()
+                        cord = m.coord()
 
-                        if ((cord[1] < cord2[1] <= y) and cord[0] == cord2[0]) or (x != cord[0]):
-                            condition = False
-
-                for figs in White:
-                    for m in figs.values():
-                        cord2 = m.coord()
-
-                        if (abs(cord[0] - cord2[0]) == 1) and (cord2[1] - cord[1] == 1) and (cord2 == [x, y]):
-                            part += fig.eat(x, y)
-                            m.eated()
-                            condition = False
-
-            if type(fig) == Castle:
-                cord = fig.coord()
-                for figs in Figures:
-                    for m in figs.values():
-                        cord2 = m.coord()
-
-                        if cord[0] == x:
-
-                            if m.coloured() == 'White':
-                                if ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)) and (cord[0] == cord2[0]):
-                                    condition = False
-                            else:
-                                if ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)) and (cord[0] == cord2[0]):
-                                    condition = False
-
-                        elif cord[1] == y:
-
-                            if m.coloured() == 'White':
-                                if ((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and (cord[1] == cord2[1]):
-                                    condition = False
-                            else:
-                                if ((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and (cord[1] == cord2[1]):
-                                    condition = False
-
-            if type(fig) == Elephant:
-                cord = fig.coord()
-                for figs in Figures:
-                    for m in figs.values():
-                        cord2 = m.coord()
-
-                        if m.coloured() == 'White':
-                            if (abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and \
-                                    (((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and
-                                     ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y))) or (abs(cord[0]-x) == 0):
-                                condition = False
-
-                        else:
-                            if (abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and \
-                                    (((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and
-                                     ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y))) or (abs(cord[0]-x) == 0):
-                                condition = False
-
-            if type(fig) == King:
-                cord = fig.coord()
-                for figs in Figures:
-                    for m in figs.values():
-                        cord2 = m.coord()
-
-                        if m.coloured() == 'Black':
-                            if (cord2 == [x, y]) or (abs(cord[0]-x) > 1) or (abs(cord[1]-y) > 1):
-                                condition = False
-
-            if type(fig) == Queen:
-                cord = fig.coord()
-                for figs in Figures:
-                    for m in figs.values():
-                        cord2 = m.coord()
-
-                        if m.coloured() == 'White':
-                            if ((abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and
-                                (((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and
-                                 ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)))) or \
-                                    ((cord[0] == x) and ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)) and
-                                     (cord[0] == cord2[0])) or ((cord[1] == y) and ((cord[0] < cord2[0] < x) or
-                                                                (cord[0] > cord2[0] > x)) and (cord[1] == cord2[1])):
-                                condition = False
-
-                        else:
-                            if ((abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and
-                                (((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and
-                                 ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)))) or \
-                                    ((cord[0] == x) and ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)) and
-                                     (cord[0] == cord2[0])) or ((cord[1] == y) and ((cord[0] < cord2[0] <= x) or
-                                                                (cord[0] > cord2[0] >= x)) and (cord[1] == cord2[1])):
-                                condition = False
-
-            if type(fig) == Horse:
-                if fig.testmotion(x, y) == 0:
-                    condition = False
-
-            if condition:
-                part += fig.motion(x, y)
-                for figs in White:
-                    for m in figs.values():
-                        cord2 = m.coord()
-                        if cord2 == [x, y]:
-                            m.eated()
-                for i in Black:
-                    if fig in i.values():
-                        for j in i:
-                            if fig == i[j]:
-                                key = j
-                                break
-                        break
-                send_server(f'{key} {x} {y} {part}')
-
+                        if x == cord[0] and y == cord[1]:
+                            hod, fig, load = 1, m, 1
             else:
-                fig.ret()
+                hod, load = 0, 0
+                if type(fig) == Pawn:
+                    cord = fig.coord()
+
+                    for figs in Figures:
+                        for m in figs.values():
+                            cord2 = m.coord()
+
+                            if ((cord[1] < cord2[1] <= y) and cord[0] == cord2[0]) or (x != cord[0]):
+                                condition = False
+
+                    for figs in White:
+                        for m in figs.values():
+                            cord2 = m.coord()
+
+                            if (abs(cord[0] - cord2[0]) == 1) and (cord2[1] - cord[1] == 1) and (cord2 == [x, y]):
+                                part += fig.eat(x, y)
+                                m.eated()
+                                condition = False
+
+                if type(fig) == Castle:
+                    cord = fig.coord()
+                    for figs in Figures:
+                        for m in figs.values():
+                            cord2 = m.coord()
+
+                            if cord[0] == x:
+
+                                if m.coloured() == 'White':
+                                    if ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)) and (cord[0] == cord2[0]):
+                                        condition = False
+                                else:
+                                    if ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)) and (cord[0] == cord2[0]):
+                                        condition = False
+
+                            elif cord[1] == y:
+
+                                if m.coloured() == 'White':
+                                    if ((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and (cord[1] == cord2[1]):
+                                        condition = False
+                                else:
+                                    if ((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and (cord[1] == cord2[1]):
+                                        condition = False
+
+                if type(fig) == Elephant:
+                    cord = fig.coord()
+                    for figs in Figures:
+                        for m in figs.values():
+                            cord2 = m.coord()
+
+                            if m.coloured() == 'White':
+                                if (abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and \
+                                        (((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and
+                                        ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y))) or (abs(cord[0]-x) == 0):
+                                    condition = False
+
+                            else:
+                                if (abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and \
+                                        (((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and
+                                        ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y))) or (abs(cord[0]-x) == 0):
+                                    condition = False
+
+                if type(fig) == King:
+                    cord = fig.coord()
+                    for figs in Figures:
+                        for m in figs.values():
+                            cord2 = m.coord()
+
+                            if m.coloured() == 'Black':
+                                if (cord2 == [x, y]) or (abs(cord[0]-x) > 1) or (abs(cord[1]-y) > 1):
+                                    condition = False
+
+                if type(fig) == Queen:
+                    cord = fig.coord()
+                    for figs in Figures:
+                        for m in figs.values():
+                            cord2 = m.coord()
+
+                            if m.coloured() == 'White':
+                                if ((abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and
+                                    (((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and
+                                    ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)))) or \
+                                        ((cord[0] == x) and ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)) and
+                                        (cord[0] == cord2[0])) or ((cord[1] == y) and ((cord[0] < cord2[0] < x) or
+                                                                    (cord[0] > cord2[0] > x)) and (cord[1] == cord2[1])):
+                                    condition = False
+
+                            else:
+                                if ((abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and
+                                    (((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and
+                                    ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)))) or \
+                                        ((cord[0] == x) and ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)) and
+                                        (cord[0] == cord2[0])) or ((cord[1] == y) and ((cord[0] < cord2[0] <= x) or
+                                                                    (cord[0] > cord2[0] >= x)) and (cord[1] == cord2[1])):
+                                    condition = False
+
+                if type(fig) == Horse:
+                    if fig.testmotion(x, y) == 0:
+                        condition = False
+
+                if condition:
+                    part += fig.motion(x, y)
+                    for figs in White:
+                        for m in figs.values():
+                            cord2 = m.coord()
+                            if cord2 == [x, y]:
+                                m.eated()
+                    for i in Black:
+                        if fig in i.values():
+                            for j in i:
+                                if fig == i[j]:
+                                    key = j
+                                    break
+                            break
+                    send_server(f'{key} {x} {y} {part}')
+
+                else:
+                    fig.ret()
+
 
 
 def scroll_anima(zmove_xy, zzmove_xy, zzzmove_xy, condition):
@@ -592,10 +609,6 @@ while 1:
         Server_button.paint(width / 4 + 39, height / 4 + 62, data.button_sound, 0, 0, 'scrolling', action=scrolling)
         Single_button.paint(width / 5 * 3 + 39, height / 4 + 62, data.button_sound, 0, 0, 'scrolling', action=scrolling)
 
-        # screen.blit(data.place_image, [0, -30])
-        # blit_place()
-        # print_chess()
-
     if okno == 0 or okno == -2:
         screen.blit(data.placebutton1_1, ((width / 2 - 316), height / 7 * 2 - 21 - 120 - after_but))
         screen.blit(data.play_button, (width / 2 - 75, height / 7 * 2 - 120 - after_but))
@@ -637,7 +650,20 @@ while 1:
                             data.button_sound, 0, 0, 'scroll', action=scroll)
             Exit_button.paint(width / 2 - 75, height / 7 * 5.2 - 120 + after_but,
                           data.button_sound, 0, 0, 'scroll', action=close_window)
+    
+    if getSerb() == 1:
+        okno = 5
 
+    if okno == 5:
+        screen.blit(data.place_image, [0, -30])
+        blit_place()
+        print_chess()
+
+        if okno == 5 and zmove_xy <= math.pi * 6:
+            zmove_xy += 1
+
+            screen.blit(data.go, (-(math.cos(zmove_xy / 12) * 2300) - 300, 0))
+        
     if okno == 2 and clo == 0 and check == 0:
         check = 1
         blit_place()
@@ -656,6 +682,9 @@ while 1:
             okno = 4
 
     if okno == 4:
+        if zzmove_xy == 0: 
+            createpotok()
+
         zzmove_xy += 1
         screen.blit(data.player_button, (width / 9 * 3.2, height / 2.5))
         screen.blit(data.pk_button, (width / 9 * 5.2, height / 2.5))

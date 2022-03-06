@@ -44,6 +44,3 @@ runs = [run1, run2, run3]
 # звуки
 button_sound = pygame.mixer.Sound('Sounds/button.mp3')
 place_sound = pygame.mixer.Sound('Sounds/place.mp3')
-
-# Переменная
-part = 0
