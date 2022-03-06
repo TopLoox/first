@@ -1,14 +1,12 @@
 import socket
 import threading
 
-from Chess_pieces.Figurestype import Figures, Black, White
-
 server = socket.socket(
     socket.AF_INET,
     socket.SOCK_STREAM
 )
 
-server.bind(("localhost", 12347))   # 192.168.1.78
+server.bind(("192.168.1.78", 12346))   # 192.168.1.78
 
 server.listen(5)
 
@@ -16,16 +14,33 @@ print("<< Server have started >>")
 
 users = []
 
+part = 0
+
 
 def send_all(data):
-    for user in users:
-        user[0].send(data)
-
+    print(part)
+    dates = data.decode('utf-8').split(' ')
+    if (len(users) == 2) and (len(dates) == 2):   
+        if part % 2 ==1:
+            users[1].send(data)
+        else:
+            users[0].send(data)
+    elif (len(users) == 2) and (len(dates) != 2):
+        users[1].send(data)
+        users[0].send(data)
 
 def server_chat(user, room_number):
+    global part
     while True:
         data = user.recv(2048)
-        send_all(data)
+        dates = data.decode('utf-8').split(' ')
+        part = int(dates[3])
+        if dates == ['f', '0', '0', '0']:
+            send_all('White 1'.encode('utf-8'))
+            part = 1
+            send_all('Black 1'.encode('utf-8'))
+        else:    
+            send_all(data)
 
 
 def server_start():
@@ -36,7 +51,7 @@ def server_start():
         
         print(f"\033[31m{'-'*30}\n\033[0m<< User {address[0]} has join at {room_number} room >>\033[31m\n{'-'*30}")
 
-        users.append([user_socket, room_number])
+        users.append(user_socket)
 
         server_listen = threading.Thread(
             target=server_chat,
