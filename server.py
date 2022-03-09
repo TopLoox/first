@@ -6,7 +6,7 @@ server = socket.socket(
     socket.SOCK_STREAM
 )
 
-server.bind(("192.168.1.78", 12346))   # 192.168.1.78
+server.bind(("localhost", 12346))   # 192.168.1.78
 
 server.listen(5)
 

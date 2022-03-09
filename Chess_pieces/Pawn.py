@@ -62,9 +62,9 @@ class Pawn:
     def pict(self):
         if self.__EAT:
             if self.__colour == 'White':
-                screen.blit(white, (247, 349))
+                screen.blit(white, (247, 374)) 
             else:
-                screen.blit(black, (247, 544))
+                screen.blit(black, (247, 544)) 
         else:
             if self.__type == 0:
                 if self.__colour == 'White':
@@ -99,13 +99,16 @@ class Pawn:
             if self.__colour == 'White':
                 screen.blit(white, (247, 544))
             else:
-                screen.blit(black, (247, 349))
+                screen.blit(black, (247, 374))
         else:
             if self.__type == 0:
                 if self.__colour == 'White':
-                    screen.blit(white, (self.__x * 90 + 600, self.__y * 90 + 150))
+                    screen.blit(white, (1230 - self.__x * 90, 780 - self.__y * 90))
                 else:
-                    screen.blit(black, (self.__x * 90 + 600, self.__y * 90 + 150))
+                    screen.blit(black, (1230 - self.__x * 90, 780 - self.__y * 90))
+
+    def getCount(self):
+        return self.__count_motion
 
     @staticmethod
     def gettype():

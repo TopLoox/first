@@ -8,7 +8,7 @@ client = socket.socket(
     socket.SOCK_STREAM
 )
 
-client.connect(('192.168.1.78', 12346))
+client.connect(('localhost', 12346))  #192.168.1.78
 
 part = 0 
 Clr = 'White'
