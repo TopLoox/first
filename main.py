@@ -143,10 +143,10 @@ def print_text(mes, x, y, font_size, font_color=(0, 0, 0), font_type='font1.ttf'
 def blit_place():
     if getClr() == 'White':
         [[InvisButtons.paint(b.board[row][line], 600 + (90 * row), 150 + (90 * line), data.place_sound,
-                         row, line, 'connect', action=connect) for row in range(8)] for line in range(8)]
+                         row, line, 'connect', action = connect) for row in range(8)] for line in range(8)]
     elif getClr() == 'Black':
         [[InvisButtons.paint(b.board[row][line], 1230 - (90 * row), 780 - (90 * line), data.place_sound,
-                         row, line, 'connect', action=connect) for row in range(8)] for line in range(8)]             
+                         row, line, 'connect', action = connect) for row in range(8)] for line in range(8)]             
 
 
 def con(fig, x, y):
@@ -195,16 +195,48 @@ def con(fig, x, y):
                                         or (abs(cord[0] - x) != abs(cord[1] - y)):
                         return False
         return True
+
     elif type(fig) == King:
         cord = fig.coord()
+        outing = False
         for figs in Figures:
             for m in figs.values():
                 cord2 = m.coord()
-
                 if m.coloured() == getClr():
                     if (cord2 == [x, y]) or (abs(cord[0]-x) > 1) or (abs(cord[1]-y) > 1):
                         return False
-        return True        
+                    elif getClr() == 'White':
+                        for figs2 in Black:
+                            for p in figs2.values():
+                                if (type(p) != King) and (type(p) != Pawn):
+                                    outing = con(p, x, y)
+                                    if outing == True:
+                                        return False
+                                elif type(p) == King:
+                                    cord3 = p.coord()
+                                    if (abs(cord3[0] - x) <= 1) and (abs(cord3[1] - y) <= 1):
+                                        return False
+                                elif type(p) == Pawn:
+                                    cord3 = p.coord()
+                                    if (abs(cord3[0] - x) == 1) and (y - cord3[1] == 1):
+                                        return False
+                    elif getClr() == 'Black':
+                        for figs2 in White:
+                            for p in figs2.values():
+                                if (type(p) != King) and (type(p) != Pawn):
+                                    outing = con(p, x, y)
+                                    if outing == True:
+                                        return False
+                                elif type(p) == King:
+                                    cord3 = p.coord()
+                                    if (abs(cord3[0] - x) <= 1) and (abs(cord3[1] - y) <= 1):
+                                        return False
+                                elif type(p) == Pawn:
+                                    cord3 = p.coord()
+                                    if (abs(cord3[0] - x) == 1) and (cord3[1] - y == 1):
+                                        return False
+        return True 
+
     elif type(fig) == Queen:
         cord = fig.coord()
         for figs in Figures:
@@ -649,15 +681,15 @@ while 1:
             screen.blit(data.runs[i - zzmove_xy // 4 % 3], (width / 9 * (4.03 + nums * 0.3), height / 2.5 + 17))
 
     if hod == 1:
-        for x1 in range(8):
-            for y1 in range(8):
-                if fig.coord() != [y1,x1]:
-                    blik = con(fig, y1, x1)
+        for y1 in range(8):
+            for x1 in range(8):
+                if fig.coord() != [x1,y1]:
+                    blik = con(fig, x1, y1)
                     if blik:
                         if getClr() == 'White':
-                            screen.blit(data.test_paint, (600 + (90 * y1), 150 + (90 * x1)))
+                            screen.blit(data.test_paint, (600 + (90 * x1), 150 + (90 * y1)))
                         else: 
-                            screen.blit(data.test_paint, (600 + (90 * (7 - y1)), 150 + (90 * (7 - x1))))
+                            screen.blit(data.test_paint, (600 + (90 * (7 - x1)), 150 + (90 * (7 - y1))))
 
     if clo == 1:
         screen.blit(data.clo_window, (560, 240))
