@@ -12,6 +12,7 @@ class Castle:
         self.__y = y
         self.__colour = colour
         self.__type = 0
+        self.__count_Motion = 0
 
     def motion(self, new_x, new_y):
         if (self.__x == new_x) and (self.__y != new_y):
@@ -25,8 +26,13 @@ class Castle:
         else:
             self.__type = 0
             return 0
+        self.__count_Motion += 1
         self.__type = 0
         return 1
+
+    def castling(self, new_x, new_y):
+        self.__count_Motion += 1
+        self.__x, self.__y = new_x, new_y 
 
     def pict(self):
         if self.__type == 0:
@@ -65,6 +71,9 @@ class Castle:
                 screen.blit(white, (1230 - self.__x * 90, 780 - self.__y * 90))
             else:
                 screen.blit(black, (1230 - self.__x * 90, 780 - self.__y * 90))
+
+    def getCount(self):
+        return self.__count_Motion
 
     @staticmethod
     def gettype():
