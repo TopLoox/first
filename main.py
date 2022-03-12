@@ -15,7 +15,7 @@ from Chess_pieces.Castle import Castle
 from Chess_pieces.Queen import Queen
 from Chess_pieces.King import King
 
-from Chess_pieces.Figurestype import Figures, Black, White
+from Chess_pieces.Figurestype import Figures, Black, White, white_castle, black_castle
 
 from client import getClr, getPart, send_server, createpotok, getSerb, part
 
@@ -150,6 +150,7 @@ def blit_place():
 
 
 def con(fig, x, y):
+    global castlin, moveing
     if type(fig) == Horse:
         if fig.testmotion(x, y) == 0:
             return False
@@ -198,6 +199,30 @@ def con(fig, x, y):
 
     elif type(fig) == King:
         cord = fig.coord()
+        if getClr() == 'White':
+            for p in white_castle.values():
+                if (cord[1] == y) and (fig.getCount() == 0) and (p.getCount() == 0):
+                    cord2 = p.coord()
+                    if (cord[0] - x == 2) and (cord2[0] - x == -2) and (con(p, x + 1, y)):
+                        castlin = p
+                        moveing = x + 1
+                        return True
+                    elif (cord2[0] - x == 1) and (x - cord[0] == 2) and (con(p, x - 1, y)):
+                        castlin = p
+                        moveing = x - 1
+                        return True
+        else:
+            for p in black_castle.values():
+                if (cord[1] == y) and (fig.getCount() == 0) and (p.getCount() == 0):
+                    cord2 = p.coord()
+                    if (cord[0] - x == 2) and (cord2[0] - x == -2) and (con(p, x + 1, y)):
+                        castlin = p
+                        moveing = x + 1
+                        return True
+                    elif (cord2[0] - x == 1) and (x - cord[0] == 2) and (con(p, x - 1, y)):
+                        castlin = p
+                        moveing = x - 1
+                        return True
         outing = False
         for figs in Figures:
             for m in figs.values():
@@ -315,6 +340,7 @@ def connect(x, y):
             else:
                 hod = 0
                 load = 0
+                cord = fig.coord()
 
                 condition = con(fig, x, y)
 
@@ -323,7 +349,6 @@ def connect(x, y):
                     for figs in Black:
                         for m in figs.values():
                             cord2 = m.coord()
-
                             if (abs(cord[0] - cord2[0]) == 1) and (cord[1] - cord2[1] == 1) and \
                                     (x == cord2[0]) and (y == cord2[1]):
                                 part += fig.eat(x, y)
@@ -337,6 +362,29 @@ def connect(x, y):
                                         break
                                 send_server(f'{key} {x} {y} {part}')
                                 condition = False
+
+                if type(fig) == King:
+                    if con(fig, x, y) and (fig.getCount() == 0) and (cord[1] == y):
+                        fig.castling(x, y)
+                        castlin.castling(moveing, y)
+                        part += 1
+                        for i in White:
+                            if fig in i.values():
+                                for j in i:
+                                    if fig == i[j]:
+                                        key = j
+                                        break
+                                break
+                        send_server(f'{key} {x} {y} {part}')
+                        for i in White:
+                            if castlin in i.values():
+                                for j in i:
+                                    if castlin == i[j]:
+                                        key = j
+                                        break
+                                break
+                        send_server(f'{key} {moveing} {y} {part}')
+                        condition = False
 
                 if condition:
                     part += fig.motion(x, y)
@@ -366,8 +414,31 @@ def connect(x, y):
                             hod, fig, load = 1, m, 1
             else:
                 hod, load = 0, 0
-
+                cord = fig.coord()
                 condition = con(fig, x, y)
+
+                if type(fig) == King:
+                    if con(fig, x, y) and (fig.getCount() == 0) and (cord[1] == y):
+                        fig.castling(x, y)
+                        castlin.castling(moveing, y)
+                        part += 1
+                        for i in Black:
+                            if fig in i.values():
+                                for j in i:
+                                    if fig == i[j]:
+                                        key = j
+                                        break
+                                break
+                        send_server(f'{key} {x} {y} {part}')
+                        for i in Black:
+                            if castlin in i.values():
+                                for j in i:
+                                    if castlin == i[j]:
+                                        key = j
+                                        break
+                                break
+                        send_server(f'{key} {moveing} {y} {part}')
+                        condition = False
 
                 if type(fig) == Pawn:
                     cord = fig.coord()
