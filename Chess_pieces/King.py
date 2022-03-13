@@ -1,10 +1,8 @@
 import pygame
 
+from data import white_king as white, black_king as black
+
 screen = pygame.display.set_mode((1920, 1080))
-
-white = pygame.image.load('Image/White_King.png') 
-black = pygame.image.load('Image/Black_King.png')
-
 
 class King:
     def __init__(self, x, y, colour):
@@ -12,17 +10,16 @@ class King:
         self.__y = y
         self.__colour = colour
         self.__type = 0
+        self.__count_motion = 0
 
     def motion(self, new_x, new_y):
-        if ((abs(self.__x - new_x) == 1) and ((abs(self.__y - new_y) == 1) or (self.__y == new_y))) or \
-                ((abs(self.__y - new_y) == 1) and ((abs(self.__x - new_x) == 1) or (self.__x == new_x))):
-            self.__x = new_x
-            self.__y = new_y
-        else:
-            self.__type = 0
-            return 0
-        self.__type = 0
-        return 1
+        self.__x = new_x
+        self.__y = new_y
+        self.__count_motion += 1
+
+    def castling(self, new_x, new_y):
+        self.__count_motion += 1
+        self.__x, self.__y = new_x, new_y 
 
     def pict(self):
         if self.__type == 0:
@@ -61,6 +58,9 @@ class King:
     def eated(self):
         self.__x = -1
         self.__y = -1
+    
+    def getCount(self):
+        return self.__count_motion
 
     def revpict(self):
         if self.__type == 0:

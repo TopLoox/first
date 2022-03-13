@@ -1,8 +1,9 @@
 import pygame
-from data import stroke
 
 size = width, height = 1920, 1080
 screen = pygame.display.set_mode(size)
+
+from data import stroke
 
 
 class InvisButtons:
