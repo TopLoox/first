@@ -3,7 +3,7 @@ import pygame
 size = width, height = 1920, 1080
 screen = pygame.display.set_mode(size)
 
-stroke = pygame.image.load("Image/Blackout_place.png")
+from data import stroke
 
 
 class InvisButtons:

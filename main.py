@@ -1,5 +1,6 @@
 import sys
 import math
+import time
 
 import pygame
 import pygame_widgets
@@ -15,7 +16,7 @@ from Chess_pieces.Castle import Castle
 from Chess_pieces.Queen import Queen
 from Chess_pieces.King import King
 
-from Chess_pieces.Figurestype import Figures, Black, White, white_castle, black_castle
+from Chess_pieces.Figurestype import Figures, Black, White
 
 from client import getClr, getPart, send_server, createpotok, getSerb, part
 
@@ -27,8 +28,6 @@ pygame.init()
 coords = [175, 30, 230, 80]
 # coords = [0, 0, 0, 0]
 
-blik = False
-
 clock = pygame.time.Clock()
 # настройки окна
 size = width, height = 1920, 1080
@@ -38,8 +37,8 @@ move_xy, zmove_xy, zzmove_xy, zzzmove_xy, move, after, after_but, after_but2, af
 okno, clo, leg, sc, game, hod, fig, check, load, key, bk, songs = [0 for _ in range(12)]
 
 resolition = '1920'
-backgrounds = {'1920': [data.background11, data.background12, data.background13],
-               '1440': [data.background21, data.background22, data.background23]}
+backgrounds = {'1920': [data.background11, data.background12, data.background13, data.background14, data.background15],
+               '1440': [data.background21, data.background22, data.background23, data.background24, data.background25]}
 
 lobbyrect = data.lobby_image.get_rect()
 lobbyrect = lobbyrect.move([-75, 3100 + lobbyrect[1]])
@@ -143,10 +142,10 @@ def print_text(mes, x, y, font_size, font_color=(0, 0, 0), font_type='font1.ttf'
 def blit_place():
     if getClr() == 'White':
         [[InvisButtons.paint(b.board[row][line], 600 + (90 * row), 150 + (90 * line), data.place_sound,
-                         row, line, 'connect', action = connect) for row in range(8)] for line in range(8)]
+                         row, line, 'connect', action=connect) for row in range(8)] for line in range(8)]
     elif getClr() == 'Black':
         [[InvisButtons.paint(b.board[row][line], 1230 - (90 * row), 780 - (90 * line), data.place_sound,
-                         row, line, 'connect', action = connect) for row in range(8)] for line in range(8)]             
+                         row, line, 'connect', action=connect) for row in range(8)] for line in range(8)]             
 
 
 def con(fig, x, y):
@@ -260,7 +259,7 @@ def con(fig, x, y):
                                     cord3 = p.coord()
                                     if (abs(cord3[0] - x) == 1) and (cord3[1] - y == 1):
                                         return False
-        return True 
+        return True
 
     elif type(fig) == Queen:
         cord = fig.coord()
@@ -479,7 +478,6 @@ def connect(x, y):
                     fig.ret()
 
 
-
 def scroll_anima(zmove_xy, zzmove_xy, zzzmove_xy, condition):
     global lobbyrect, move_xy
     if condition:
@@ -551,8 +549,14 @@ def sett_anima(zzmove_xy, condition):
     elif bk == 1:
         screen.blit(data.sett_background2,
                     (math.sin(zzmove_xy / 30) * factor * 0.875 - 900  + after_but4, height / 2 / 1.7))
-    else:
+    elif bk == 2:
         screen.blit(data.sett_background3,
+                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
+    elif bk == 3:
+        screen.blit(data.sett_background4,
+                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
+    else:
+        screen.blit(data.sett_background5,
                     (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
 
     screen.blit(data.placebutton1_1, (width / 2 - 316,
@@ -586,7 +590,7 @@ def sett_anima(zzmove_xy, condition):
 def Next(a):
     pygame.time.delay(200)
     global backgrounds, bk, resolition, songs
-    if a == 1 and bk < 2:
+    if a == 1 and bk < 4:
         bk += 1
     elif a == 2 and songs < 2:
         songs += 1
@@ -690,8 +694,12 @@ while 1:
                 screen.blit(data.sett_background1, (1750 - 900, height / 2 / 1.7))
             elif bk == 1:
                 screen.blit(data.sett_background2, (1750 - 900, height / 2 / 1.7))
-            else:
+            elif bk == 2:
                 screen.blit(data.sett_background3, (1750 - 900, height / 2 / 1.7))
+            elif bk == 3:
+                screen.blit(data.sett_background4, (1750 - 900, height / 2 / 1.7))
+            else:
+                screen.blit(data.sett_background5, (1750 - 900, height / 2 / 1.7))
 
             Back_background.paint(width / 7 * 3.21, height / 1.98, data.button_sound, 1, 0, 'next', action=Back)
             Next_background.paint(width / 7 * 3.832, height / 1.98, data.button_sound, 1, 0, 'next', action=Next)
@@ -759,7 +767,7 @@ while 1:
                     if blik:
                         if getClr() == 'White':
                             screen.blit(data.test_paint, (600 + (90 * x1), 150 + (90 * y1)))
-                        else: 
+                        else:
                             screen.blit(data.test_paint, (600 + (90 * (7 - x1)), 150 + (90 * (7 - y1))))
 
     if clo == 1:
