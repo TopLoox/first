@@ -65,9 +65,9 @@ class Pawn:
     def pict(self):
         if self.__EAT:
             if self.__colour == 'White':
-                screen.blit(white, after_coord['lower'][self.__count_motion])
+                screen.blit(white, after_coord['upper'][self.__count_motion])
             else:
-                screen.blit(black, after_coord['upper'][self.__count_motion])
+                screen.blit(black, after_coord['lower'][self.__count_motion])
         else:
             if self.__type == 0:
                 if self.__colour == 'White':
@@ -109,9 +109,9 @@ class Pawn:
     def revpict(self):
         if self.__EAT:
             if self.__colour == 'White':
-                screen.blit(white, after_coord['upper'][self.__count_motion])
+                screen.blit(white, after_coord['lower'][self.__count_motion])
             else:
-                screen.blit(black, after_coord['lower'][self.__count_motion])
+                screen.blit(black, after_coord['upper'][self.__count_motion])
         else:
             if self.__type == 0:
                 if self.__colour == 'White':
