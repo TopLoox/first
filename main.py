@@ -17,9 +17,9 @@ from Chess_pieces.King import King
 
 from Chess_pieces.Figurestype import Figures, Black, White, black_castle, white_castle, white_king, black_king
 
-from client import getClr, getPart, send_server, createpotok, getSerb
+from client import getClr, getPart, send_server, createpotok, getSerb, getShah, getShahfig, getShahCoord
 
-from Chess_pieces.figcon import con, getCastlin, getMoveing
+from Chess_pieces.figcon import con, getCastlin, getMoveing, shahcon
 
 import data
 
@@ -168,7 +168,11 @@ def connect(x, y):
                 load = 0
                 cord = fig.coord()
 
-                condition = con(fig, x, y, getClr())
+                if getShah() == 0:
+                    condition = con(fig, x, y, getClr())
+                else:
+                    king_coord = getShahCoord()
+                    condition = shahcon(getShahfig(), king_coord[0], king_coord[1], fig, x, y, getClr())
 
                 if type(fig) == Pawn:
                     cord = fig.coord()
@@ -190,7 +194,7 @@ def connect(x, y):
                                 condition = False
 
                 if type(fig) == King:
-                    if con(fig, x, y, getClr()) and (fig.getCount() == 0) and (cord[1] == y):
+                    if condition and (fig.getCount() == 0) and (cord[1] == y):
                         fig.castling(x, y)
                         castlin = getCastlin()
                         moveing = getMoveing()
@@ -230,6 +234,7 @@ def connect(x, y):
                                     break
                             break
                     send_server(f'{key} {x} {y} {part}')
+                    fig.ret()
                 else:
                     fig.ret()
     else:
@@ -244,10 +249,16 @@ def connect(x, y):
             else:
                 hod, load = 0, 0
                 cord = fig.coord()
-                condition = con(fig, x, y, getClr())
+
+                if getShah() == 0:
+                    condition = con(fig, x, y, getClr())
+                else:
+                    king_coord = getShahCoord()
+                    condition = shahcon(getShahfig(), king_coord[0], king_coord[1], fig, x, y, getClr())
+
 
                 if type(fig) == King:
-                    if con(fig, x, y, getClr()) and (fig.getCount() == 0) and (cord[1] == y):
+                    if condition and (fig.getCount() == 0) and (cord[1] == y):
                         fig.castling(x, y)
                         castlin = getCastlin()
                         moveing = getMoveing()
@@ -306,7 +317,7 @@ def connect(x, y):
                                     break
                             break
                     send_server(f'{key} {x} {y} {part}')
-
+                    fig.ret()
                 else:
                     fig.ret()
 
@@ -559,7 +570,7 @@ while 1:
     if okno == 5:
         screen.blit(data.place_image, [0, -30])
         blit_place()
-        if hod == 1:
+        if hod == 1 and getShah() == 0:
             for y1 in range(8):
                 for x1 in range(8):
                     if fig.coord() != [x1,y1]:
@@ -569,7 +580,17 @@ while 1:
                                 screen.blit(data.stroke2, (600 + (90 * x1), 150 + (90 * y1)))
                             else:
                                 screen.blit(data.stroke2, (600 + (90 * (7 - x1)), 150 + (90 * (7 - y1))))
-
+        elif hod == 1 and getShah() == 1:
+            for y1 in range(8):
+                for x1 in range(8):
+                    if fig.coord() != [x1,y1]:
+                        king_coord = getShahCoord()
+                        blik = shahcon(getShahfig(), king_coord[0], king_coord[1], fig, x1, y1, getClr())
+                        if blik:
+                            if getClr() == 'White':
+                                screen.blit(data.stroke2, (600 + (90 * x1), 150 + (90 * y1)))
+                            else:
+                                screen.blit(data.stroke2, (600 + (90 * (7 - x1)), 150 + (90 * (7 - y1))))
         print_chess()
 
         if okno == 5 and zmove_xy <= math.pi * 6:

@@ -15,7 +15,8 @@ part = 0
 Clr = 'White'
 Serb = 0
 shah = 0
-outClr = 0  
+outClr = 0
+shah_fig = 0  
 
 def getShah():
     return shah
@@ -29,8 +30,14 @@ def getSerb():
 def getPart():
     return part
 
+def getShahfig():
+    return shah_fig
+
+def getShahCoord():
+    return shah_coord
+
 def server_listen(room):
-    global part, Clr, Serb, shah, outClr 
+    global part, Clr, Serb, shah, outClr, shah_fig, shah_coord 
     while True:
         data = client.recv(2048).decode("utf-8").split(' ')
         print(data)
@@ -52,11 +59,11 @@ def server_listen(room):
                             shah_coord = black_king['bk'].coord()
                         if con(i[data[0]], shah_coord[0], shah_coord[1], outClr):
                             shah = 1
+                            shah_fig = i[data[0]]
                         else:
                             shah = 0
-                        print(shah)
-      
             part = int(data[3])
+
         else:
             Clr = data[0]
             Serb = int(data[1])

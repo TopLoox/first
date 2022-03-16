@@ -18,6 +18,7 @@ class King:
         self.__x = new_x
         self.__y = new_y
         self.__count_Motion += 1
+        return 1
 
     def castling(self, new_x, new_y):
         self.__count_Motion += 1
@@ -29,6 +30,7 @@ class King:
                 screen.blit(white, (self.__x * 90 + 600, self.__y * 90 + 150))
             else:
                 screen.blit(black, (self.__x * 90 + 600, self.__y * 90 + 150))
+
 
     def coord(self):
         return [self.__x, self.__y]
@@ -70,6 +72,7 @@ class King:
 
     def getCount(self):
         return self.__count_Motion
+
 
     @staticmethod
     def gettype():
