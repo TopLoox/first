@@ -16,9 +16,11 @@ from Chess_pieces.Castle import Castle
 from Chess_pieces.Queen import Queen
 from Chess_pieces.King import King
 
-from Chess_pieces.Figurestype import Figures, Black, White
+from Chess_pieces.Figurestype import Figures, Black, White, black_castle, white_castle, white_king, black_king
 
-from client import getClr, getPart, send_server, createpotok, getSerb, part
+from client import getClr, getPart, send_server, createpotok, getSerb, getShah, getShahfig, getShahCoord
+
+from Chess_pieces.figcon import con, getCastlin, getMoveing, shahcon
 
 import data
 
@@ -33,8 +35,9 @@ clock = pygame.time.Clock()
 size = width, height = 1920, 1080
 screen = pygame.display.set_mode(size)
 
-move_xy, zmove_xy, zzmove_xy, zzzmove_xy, move, after, after_but, after_but2, after_but3, after_but4 = [0 for _ in range(10)]
-okno, clo, leg, sc, game, hod, fig, check, load, key, bk, songs = [0 for _ in range(12)]
+move_xy, zmove_xy, zzmove_xy, zzzmove_xy, move, after, \
+    after_but, after_but2, after_but3, after_but4 = [0 for _ in range(10)]
+okno, clo, leg, sc, game, hod, fig, check, load, key, bk, songs, moment = [0 for _ in range(13)]
 
 resolition = '1920'
 backgrounds = {'1920': [data.background11, data.background12, data.background13, data.background14, data.background15],
@@ -142,188 +145,14 @@ def print_text(mes, x, y, font_size, font_color=(0, 0, 0), font_type='font1.ttf'
 def blit_place():
     if getClr() == 'White':
         [[InvisButtons.paint(b.board[row][line], 600 + (90 * row), 150 + (90 * line), data.place_sound,
-                         row, line, 'connect', action=connect) for row in range(8)] for line in range(8)]
+                             row, line, 'connect', action=connect) for row in range(8)] for line in range(8)]
     elif getClr() == 'Black':
         [[InvisButtons.paint(b.board[row][line], 1230 - (90 * row), 780 - (90 * line), data.place_sound,
-                         row, line, 'connect', action=connect) for row in range(8)] for line in range(8)]             
-
-
-def con(fig, x, y):
-    global castlin, moveing
-    if type(fig) == Horse:
-        if fig.testmotion(x, y) == 0:
-            return False
-        return True
-    elif type(fig) == Castle:
-        cord = fig.coord()
-        for figs in Figures:
-            for m in figs.values():
-                cord2 = m.coord()
-                if cord[0] == x:
-                    if m.coloured() == getClr():
-                        if ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)) and (cord[0] == cord2[0]):
-                            return False
-                    else:
-                        if ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)) and (cord[0] == cord2[0]):
-                            return False
-
-                elif cord[1] == y:
-                    if m.coloured() == getClr():
-                        if ((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and (cord[1] == cord2[1]):
-                            return False
-                    else:
-                        if ((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and (cord[1] == cord2[1]):
-                            return False
-                else:
-                    return False
-        return True
-    elif type(fig) == Elephant:
-        cord = fig.coord()
-        for figs in Figures:
-            for m in figs.values():
-                cord2 = m.coord()
-                if m.coloured() == getClr():
-                    if (abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and \
-                            (((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and
-                            ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y))) or (abs(cord[0]-x) == 0) \
-                                        or (abs(cord[0] - x) != abs(cord[1] - y)):
-                        return False
-                else:
-                    if (abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and \
-                            (((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and
-                            ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y))) or (abs(cord[0]-x) == 0) \
-                                        or (abs(cord[0] - x) != abs(cord[1] - y)):
-                        return False
-        return True
-
-    elif type(fig) == King:
-        cord = fig.coord()
-        if getClr() == 'White':
-            for p in white_castle.values():
-                if (cord[1] == y) and (fig.getCount() == 0) and (p.getCount() == 0):
-                    cord2 = p.coord()
-                    if (cord[0] - x == 2) and (cord2[0] - x == -2) and (con(p, x + 1, y)):
-                        castlin = p
-                        moveing = x + 1
-                        return True
-                    elif (cord2[0] - x == 1) and (x - cord[0] == 2) and (con(p, x - 1, y)):
-                        castlin = p
-                        moveing = x - 1
-                        return True
-        else:
-            for p in black_castle.values():
-                if (cord[1] == y) and (fig.getCount() == 0) and (p.getCount() == 0):
-                    cord2 = p.coord()
-                    if (cord[0] - x == 2) and (cord2[0] - x == -2) and (con(p, x + 1, y)):
-                        castlin = p
-                        moveing = x + 1
-                        return True
-                    elif (cord2[0] - x == 1) and (x - cord[0] == 2) and (con(p, x - 1, y)):
-                        castlin = p
-                        moveing = x - 1
-                        return True
-        outing = False
-        for figs in Figures:
-            for m in figs.values():
-                cord2 = m.coord()
-                if m.coloured() == getClr():
-                    if (cord2 == [x, y]) or (abs(cord[0]-x) > 1) or (abs(cord[1]-y) > 1):
-                        return False
-                    elif getClr() == 'White':
-                        for figs2 in Black:
-                            for p in figs2.values():
-                                if (type(p) != King) and (type(p) != Pawn):
-                                    outing = con(p, x, y)
-                                    if outing == True:
-                                        return False
-                                elif type(p) == King:
-                                    cord3 = p.coord()
-                                    if (abs(cord3[0] - x) <= 1) and (abs(cord3[1] - y) <= 1):
-                                        return False
-                                elif type(p) == Pawn:
-                                    cord3 = p.coord()
-                                    if (abs(cord3[0] - x) == 1) and (y - cord3[1] == 1):
-                                        return False
-                    elif getClr() == 'Black':
-                        for figs2 in White:
-                            for p in figs2.values():
-                                if (type(p) != King) and (type(p) != Pawn):
-                                    outing = con(p, x, y)
-                                    if outing == True:
-                                        return False
-                                elif type(p) == King:
-                                    cord3 = p.coord()
-                                    if (abs(cord3[0] - x) <= 1) and (abs(cord3[1] - y) <= 1):
-                                        return False
-                                elif type(p) == Pawn:
-                                    cord3 = p.coord()
-                                    if (abs(cord3[0] - x) == 1) and (cord3[1] - y == 1):
-                                        return False
-        return True
-
-    elif type(fig) == Queen:
-        cord = fig.coord()
-        for figs in Figures:
-            for m in figs.values():
-                cord2 = m.coord()
-                if m.coloured() == getClr():
-                    if ((abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and
-                        (((cord[0] < cord2[0] <= x) or (cord[0] > cord2[0] >= x)) and
-                        ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)))) or \
-                            ((cord[0] == x) and ((cord[1] < cord2[1] <= y) or (cord[1] > cord2[1] >= y)) and
-                            (cord[0] == cord2[0])) or ((cord[1] == y) and ((cord[0] < cord2[0] <= x) or
-                            (cord[0] > cord2[0] >= x)) and (cord[1] == cord2[1])) or not(((abs(cord[0] - x) == abs(cord[1] - y)) or
-                            ((cord[1] == y) or (cord[0] == x))) and not((cord[1] == y) and (cord[0] == x))):
-                        return False
-                else:
-                    if ((abs(cord[0] - cord2[0]) == abs(cord[1] - cord2[1])) and
-                        (((cord[0] < cord2[0] < x) or (cord[0] > cord2[0] > x)) and
-                        ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)))) or \
-                            ((cord[0] == x) and ((cord[1] < cord2[1] < y) or (cord[1] > cord2[1] > y)) and
-                            (cord[0] == cord2[0])) or ((cord[1] == y) and ((cord[0] < cord2[0] < x) or
-                            (cord[0] > cord2[0] > x)) and (cord[1] == cord2[1])) or not(((abs(cord[0] - x) == abs(cord[1] - y)) or
-                            ((cord[1] == y) or (cord[0] == x))) and not((cord[1] == y) and (cord[0] == x))):
-                        return False
-        return True
-    elif type(fig) == Pawn:
-        if getClr() == 'White':
-            cord = fig.coord()
-            for figs in Black:
-                for m in figs.values():
-                    cord2 = m.coord()
-
-                    if (abs(cord[0] - cord2[0]) == 1) and (cord[1] - cord2[1] == 1) and (cord2 == [x, y]):
-                        return True
-
-            for figs in Figures:
-                for m in figs.values():
-                    cord2 = m.coord()
-                    if ((cord[1] > cord2[1] >= y) and cord[0] == cord2[0]) or (x != cord[0]) or \
-                                ((fig.getCount() == 0) and ((cord[1] - y) > 2)) or ((fig.getCount() > 0) and ((cord[1] - y) > 1)) or ((y - cord[1]) >= 0):
-                        return False
-            return True
-
-        else:
-            cord = fig.coord()
-            for figs in White:
-                for m in figs.values():
-                    cord2 = m.coord()
-
-                    if (abs(cord[0] - cord2[0]) == 1) and (cord2[1] - cord[1] == 1) and (cord2 == [x, y]):
-                        return True
-
-            for figs in Figures:
-                for m in figs.values():
-                    cord2 = m.coord()
-
-                    if ((cord[1] < cord2[1] <= y) and cord[0] == cord2[0]) or (x != cord[0]) or \
-                                ((fig.getCount() == 0) and ((y - cord[1]) > 2)) or ((fig.getCount() > 0) and ((y - cord[1]) > 1)) or ((cord[1] - y) >= 0):
-                        return False
-            return True
+                             row, line, 'connect', action=connect) for row in range(8)] for line in range(8)]
 
 
 def connect(x, y):
-    global hod, fig, load, key, part
+    global hod, fig, load, key
     pygame.time.delay(200)
     condition = True
     part = getPart()
@@ -341,7 +170,11 @@ def connect(x, y):
                 load = 0
                 cord = fig.coord()
 
-                condition = con(fig, x, y)
+                if getShah() == 0:
+                    condition = con(fig, x, y, getClr())
+                else:
+                    king_coord = getShahCoord()
+                    condition = shahcon(getShahfig(), king_coord[0], king_coord[1], fig, x, y, getClr())
 
                 if type(fig) == Pawn:
                     cord = fig.coord()
@@ -363,8 +196,10 @@ def connect(x, y):
                                 condition = False
 
                 if type(fig) == King:
-                    if con(fig, x, y) and (fig.getCount() == 0) and (cord[1] == y):
+                    if condition and (fig.getCount() == 0) and (cord[1] == y):
                         fig.castling(x, y)
+                        castlin = getCastlin()
+                        moveing = getMoveing()
                         castlin.castling(moveing, y)
                         part += 1
                         for i in White:
@@ -375,6 +210,7 @@ def connect(x, y):
                                         break
                                 break
                         send_server(f'{key} {x} {y} {part}')
+                        pygame.time.delay(200)
                         for i in White:
                             if castlin in i.values():
                                 for j in i:
@@ -400,6 +236,7 @@ def connect(x, y):
                                     break
                             break
                     send_server(f'{key} {x} {y} {part}')
+                    fig.ret()
                 else:
                     fig.ret()
     else:
@@ -414,11 +251,18 @@ def connect(x, y):
             else:
                 hod, load = 0, 0
                 cord = fig.coord()
-                condition = con(fig, x, y)
+
+                if getShah() == 0:
+                    condition = con(fig, x, y, getClr())
+                else:
+                    king_coord = getShahCoord()
+                    condition = shahcon(getShahfig(), king_coord[0], king_coord[1], fig, x, y, getClr())
 
                 if type(fig) == King:
-                    if con(fig, x, y) and (fig.getCount() == 0) and (cord[1] == y):
+                    if condition and (fig.getCount() == 0) and (cord[1] == y):
                         fig.castling(x, y)
+                        castlin = getCastlin()
+                        moveing = getMoveing()
                         castlin.castling(moveing, y)
                         part += 1
                         for i in Black:
@@ -429,6 +273,7 @@ def connect(x, y):
                                         break
                                 break
                         send_server(f'{key} {x} {y} {part}')
+                        pygame.time.delay(200)
                         for i in Black:
                             if castlin in i.values():
                                 for j in i:
@@ -473,7 +318,7 @@ def connect(x, y):
                                     break
                             break
                     send_server(f'{key} {x} {y} {part}')
-
+                    fig.ret()
                 else:
                     fig.ret()
 
@@ -537,18 +382,19 @@ def sett_anima(zzmove_xy, condition):
         factor = -2000
 
     screen.blit(data.setting_menu, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
+    screen.blit(data.Authorship, (width - width / 3, height - height / 6.5))
 
     if resolition == '1920':
-        screen.blit(data.resolition1, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900  + after_but4, height / 2 / 1.7))
+        screen.blit(data.resolition1, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
     else:
-        screen.blit(data.resolition2, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900  + after_but4, height / 2 / 1.7))
+        screen.blit(data.resolition2, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
 
     if bk == 0:
         screen.blit(data.sett_background1,
-                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900  + after_but4, height / 2 / 1.7))
+                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
     elif bk == 1:
         screen.blit(data.sett_background2,
-                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900  + after_but4, height / 2 / 1.7))
+                    (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
     elif bk == 2:
         screen.blit(data.sett_background3,
                     (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
@@ -585,6 +431,17 @@ def sett_anima(zzmove_xy, condition):
     screen.blit(data.placebutton1_2,
                 (width / 2 - 316,
                     (height / 7 * 5.2 - 21 - 120) + (math.sin(zzmove_xy / 30) * factor / 25) + after_but))
+
+
+def choice_anima(zmove_xy, condition):
+    global after_choice
+    if condition:
+        factor = 2000
+    else:
+        factor = -2000
+
+    screen.blit(data.choice_place, (width / 4, height / 4 + math.sin(zmove_xy / 60) * factor))
+    pass
 
 
 def Next(a):
@@ -701,31 +558,57 @@ while 1:
             else:
                 screen.blit(data.sett_background5, (1750 - 900, height / 2 / 1.7))
 
-            Back_background.paint(width / 7 * 3.21, height / 1.98, data.button_sound, 1, 0, 'next', action=Back)
+            Back_background.paint(width / 7 * 3.21, height / 1.98, data.button_sound, 1, 0, 'back', action=Back)
             Next_background.paint(width / 7 * 3.832, height / 1.98, data.button_sound, 1, 0, 'next', action=Next)
-            Back_songs.paint(width / 7 * 3.265, height / 2.33, data.button_sound, 2, 0, 'next', action=Back)
+            Back_songs.paint(width / 7 * 3.265, height / 2.33, data.button_sound, 2, 0, 'back', action=Back)
             Next_songs.paint(width / 7 * 3.785, height / 2.33, data.button_sound, 2, 0, 'next', action=Next)
-            Back_resolition.paint(width / 7 * 3.265, height / 2.64, data.button_sound, 3, 0, 'next', action=Back)
+            Back_resolition.paint(width / 7 * 3.265, height / 2.64, data.button_sound, 3, 0, 'back', action=Back)
             Next_resolition.paint(width / 7 * 3.785, height / 2.64, data.button_sound, 3, 0, 'next', action=Next)
 
             Back_sett.paint(width / 7 * 3.294, height / 1.7, data.button_sound, 0, 0, 'back_setts', action=back_setts)
+            screen.blit(data.Authorship, (width - width / 3, height - height / 6.5))
         else:
-            Setting_button.paint(width / 2 - 75, height / 7 * 3.6 - 120, data.button_sound, 0, 0, 'setts',action=setts)
             screen.blit(data.placebutton2_2, (width / 2 - 132, height / 7 * 3.6 - 26 - 120 + after_but))
             screen.blit(data.setting_button, (width / 2 - 75, height / 7 * 3.6 - 120 + after_but))
             screen.blit(data.placebutton2_1, (width / 2 - 132, height / 7 * 3.6 - 26 - 120 + after_but))
 
             scroll_button.paint(width / 2 - 75, height / 7 * 2 - 120 - after_but / 1.9,
-                            data.button_sound, 0, 0, 'scroll', action=scroll)
+                                data.button_sound, 0, 0, 'scroll', action=scroll)
             Exit_button.paint(width / 2 - 75, height / 7 * 5.2 - 120 + after_but,
-                          data.button_sound, 0, 0, 'scroll', action=close_window)
+                              data.button_sound, 0, 0, 'scroll', action=close_window)
+            screen.blit(data.Authorship, (width - width / 3, height - height / 6.5))
+            Setting_button.paint(width / 2 - 75, height / 7 * 3.6 - 120, data.button_sound, 0, 0, 'setts', action=setts)
     
     if getSerb() == 1:
         okno = 5
 
     if okno == 5:
-        screen.blit(data.place_image, [0, -30])
+        if resolition == '1920':
+            screen.blit(data.place_image, [0, -30])
+        else:
+            screen.blit(data.place_image_1440, [240, 60])
         blit_place()
+        if hod == 1 and getShah() == 0:
+            for y1 in range(8):
+                for x1 in range(8):
+                    if fig.coord() != [x1, y1]:
+                        blik = con(fig, x1, y1, getClr())
+                        if blik:
+                            if getClr() == 'White':
+                                screen.blit(data.stroke2, (600 + (90 * x1), 150 + (90 * y1)))
+                            else:
+                                screen.blit(data.stroke2, (600 + (90 * (7 - x1)), 150 + (90 * (7 - y1))))
+        elif hod == 1 and getShah() == 1:
+            for y1 in range(8):
+                for x1 in range(8):
+                    if fig.coord() != [x1, y1]:
+                        king_coord = getShahCoord()
+                        blik = shahcon(getShahfig(), king_coord[0], king_coord[1], fig, x1, y1, getClr())
+                        if blik:
+                            if getClr() == 'White':
+                                screen.blit(data.stroke2, (600 + (90 * x1), 150 + (90 * y1)))
+                            else:
+                                screen.blit(data.stroke2, (600 + (90 * (7 - x1)), 150 + (90 * (7 - y1))))
         print_chess()
 
         if okno == 5 and zmove_xy <= math.pi * 6:
@@ -758,17 +641,6 @@ while 1:
         screen.blit(data.pk_button, (width / 9 * 5.2, height / 2.5))
         for nums, i in enumerate([0, 1, 2]):
             screen.blit(data.runs[i - zzmove_xy // 4 % 3], (width / 9 * (4.03 + nums * 0.3), height / 2.5 + 17))
-
-    if hod == 1:
-        for y1 in range(8):
-            for x1 in range(8):
-                if fig.coord() != [x1,y1]:
-                    blik = con(fig, x1, y1)
-                    if blik:
-                        if getClr() == 'White':
-                            screen.blit(data.test_paint, (600 + (90 * x1), 150 + (90 * y1)))
-                        else:
-                            screen.blit(data.test_paint, (600 + (90 * (7 - x1)), 150 + (90 * (7 - y1))))
 
     if clo == 1:
         screen.blit(data.clo_window, (560, 240))

@@ -1,18 +1,22 @@
 import pygame
 
+from data import after_coord
+from data import white_castle as white, black_castle as black, getmoment, setmoment
+
 screen = pygame.display.set_mode((1920, 1080))
 
-white = pygame.image.load('Image/White_Castle.png') 
-black = pygame.image.load('Image/Black_Castle.png')
+moment = False
+count_moment = 0
 
 
 class Castle:
     def __init__(self, x, y, colour):
+        self.__count_motion = 0
         self.__x = x
         self.__y = y
         self.__colour = colour
         self.__type = 0
-        self.__count_Motion = 0
+        self.__EAT = False
 
     def motion(self, new_x, new_y):
         if (self.__x == new_x) and (self.__y != new_y):
@@ -26,20 +30,26 @@ class Castle:
         else:
             self.__type = 0
             return 0
-        self.__count_Motion += 1
+        self.__count_motion += 1
         self.__type = 0
         return 1
 
     def castling(self, new_x, new_y):
-        self.__count_Motion += 1
+        self.__count_motion += 1
         self.__x, self.__y = new_x, new_y 
 
     def pict(self):
-        if self.__type == 0:
+        if self.__EAT:
             if self.__colour == 'White':
-                screen.blit(white, (self.__x * 90 + 600, self.__y * 90 + 150))
+                screen.blit(white, after_coord['upper'][count_moment])
             else:
-                screen.blit(black, (self.__x * 90 + 600, self.__y * 90 + 150))
+                screen.blit(black, after_coord['lower'][count_moment])
+        else:
+            if self.__type == 0:
+                if self.__colour == 'White':
+                    screen.blit(white, (self.__x * 90 + 600, self.__y * 90 + 150))
+                else:
+                    screen.blit(black, (self.__x * 90 + 600, self.__y * 90 + 150))
             
     def coord(self):
         return [self.__x, self.__y]
@@ -62,18 +72,31 @@ class Castle:
         return self.__colour
 
     def eated(self):
-        self.__x = -1
-        self.__y = -1
+        global count_moment, moment
+        if moment == False:
+            moment = True
+            setmoment()
+            count_moment = getmoment()
 
-    def revpict(self):
-        if self.__type == 0:
-            if self.__colour == 'White':
-                screen.blit(white, (1230 - self.__x * 90, 780 - self.__y * 90))
-            else:
-                screen.blit(black, (1230 - self.__x * 90, 780 - self.__y * 90))
+        self.__EAT = True
+        self.__x = -10
+        self.__y = -10
 
     def getCount(self):
-        return self.__count_Motion
+        return self.__count_motion
+
+    def revpict(self):
+        if self.__EAT:
+            if self.__colour == 'White':
+                screen.blit(white, after_coord['lower'][count_moment])
+            else:
+                screen.blit(black, after_coord['upper'][count_moment])
+        else:
+            if self.__type == 0:
+                if self.__colour == 'White':
+                    screen.blit(white, (1230 - self.__x * 90, 780 - self.__y * 90))
+                else:
+                    screen.blit(black, (1230 - self.__x * 90, 780 - self.__y * 90))
 
     @staticmethod
     def gettype():
