@@ -16,6 +16,7 @@ class King:
         self.__x = new_x
         self.__y = new_y
         self.__count_motion += 1
+        return 1
 
     def castling(self, new_x, new_y):
         self.__count_motion += 1
