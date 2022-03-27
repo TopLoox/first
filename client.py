@@ -1,30 +1,46 @@
 import socket
 import threading
-from Chess_pieces.Figurestype import Figures
+from Chess_pieces.Figurestype import Figures, black_king, white_king
 from Chess_pieces.Pawn import Pawn
+from Chess_pieces.figcon import con
 
 client = socket.socket(
     socket.AF_INET,
     socket.SOCK_STREAM
 )
 
-client.connect(('localhost', 12346))  #192.168.1.78
+client.connect(('localhost', 12346))  # 192.168.1.78
 
-part = 0 
+part, Serb, shah, outClr, shah_fig = [0 for i in range(5)]
 Clr = 'White'
-Serb = 0
+
+
+def getShah():
+    return shah
+
 
 def getClr():
     return Clr
 
+
 def getSerb():
     return Serb
+
 
 def getPart():
     return part
 
+
+def getShahfig():
+    return shah_fig
+
+
+def getShahCoord():
+    return shah_coord
+
+
 def server_listen(room):
-    global part, Clr, Serb 
+    global part, Clr, Serb, shah, outClr, shah_fig, shah_coord
     while True:
         data = client.recv(2048).decode("utf-8").split(' ')
         print(data)
@@ -39,10 +55,25 @@ def server_listen(room):
                             cord2 = m.coord()
                             if cord2 == [int(data[1]), int(data[2])] and m != i[data[0]]:
                                 m.eated()
+                    if (Clr != i[data[0]].coloured()):
+                        if Clr == 'White':
+                            shah_coord = white_king['wk'].coord()
+                        else:
+                            shah_coord = black_king['bk'].coord()
+                        if con(i[data[0]], shah_coord[0], shah_coord[1], outClr):
+                            shah = 1
+                            shah_fig = i[data[0]]
+                        else:
+                            shah = 0
             part = int(data[3])
+
         else:
             Clr = data[0]
             Serb = int(data[1])
+            if Clr == 'White':
+                outClr = 'Black'
+            else:
+                outClr = 'White'
 
 
 def createpotok():
