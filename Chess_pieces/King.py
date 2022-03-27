@@ -1,5 +1,6 @@
 import pygame
 
+import data
 from data import white_king as white, black_king as black
 
 screen = pygame.display.set_mode((1920, 1080))
@@ -23,10 +24,13 @@ class King:
 
     def pict(self):
         if self.__type == 0:
+            poss = data.getposs()
             if self.__colour == 'White':
-                screen.blit(white, (self.__x * 90 + 600, self.__y * 90 + 150))
+                screen.blit(white,
+                            (self.__x * (90 - poss[0]) + 600 - poss[1], self.__y * (90 - poss[0]) + 150 - poss[2]))
             else:
-                screen.blit(black, (self.__x * 90 + 600, self.__y * 90 + 150))
+                screen.blit(black,
+                            (self.__x * (90 - poss[0]) + 600 - poss[1], self.__y * (90 - poss[0]) + 150 - poss[2]))
 
     def coord(self):
         return [self.__x, self.__y]
