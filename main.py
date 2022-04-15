@@ -42,6 +42,14 @@ okno, clo, leg, sc, game, hod, fig, check, load, key, bk, songs, moment = [0 for
 backgrounds = {'1920': [data.background11, data.background12, data.background13, data.background14, data.background15],
                '1440': [data.background21, data.background22, data.background23, data.background24, data.background25]}
 
+Checks = {'1920': {'white': [data.CheckWhite, data.CheckmateWhite], 'black': [data.CheckBlack, data.CheckmateBlack]},
+          '1440': {'white': [data.CheckWhite_1440, data.CheckmateWhite_1440],
+                   'black': [data.CheckBlack_1440, data.CheckmateBlack_1440]}}
+
+Сhoses = {'1920': {'white': [data.CheckWhite, data.CheckmateWhite], 'black': [data.CheckBlack, data.CheckmateBlack]},
+          '1440': {'white': [data.CheckWhite_1440, data.CheckmateWhite_1440],
+                   'black': [data.CheckBlack_1440, data.CheckmateBlack_1440]}}
+
 lobbyrect = data.lobby_image.get_rect()
 lobbyrect = lobbyrect.move([-75, 3100 + lobbyrect[1]])
 
@@ -60,8 +68,8 @@ Back_sett = InvisButtons(143, 43)
 
 yes_button = Button(screen, width / 2 - 190, height / 2 - 55, 150, 90, text='Yes', onClick=lambda: close_game())
 no_button = Button(screen, width / 2, height / 2 - 55, 200, 90, text='No', onClick=lambda: close_window_no())
-close_button = Button(screen, width - 60 - coords[2], 30+coords[3], 30, 30,
-                      image=data.close_paint, onClick=lambda: close_window())
+# close_button = Button(screen, width - 60 - coords[2], 30+coords[3], 30, 30,
+                      # image=data.close_paint, onClick=lambda: close_window())
 
 yes_button.hide()
 no_button.hide()
@@ -88,8 +96,9 @@ def close_window():
     if click[0]:
         pygame.mixer.Sound.play(data.button_sound)
     clo = 1
-    yes_button.show()
-    no_button.show()
+
+    # yes_button.show()
+    # no_button.show()
 
 
 def close_window_no():
@@ -432,6 +441,72 @@ def sett_anima(zzmove_xy, condition):
                     (height / 7 * 5.2 - 21 - 120) + (math.sin(zzmove_xy / 30) * factor / 25) + after_but))
 
 
+def yesno(zzmove_xy, condition):
+    if condition:
+        factor = 2000
+    else:
+        factor = -2000
+
+    # screen.blit(data.setting_menu, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
+    screen.blit(data.Yes, (math.sin(zzmove_xy / 30) * factor * 0.875 - 800, height / 2))
+    screen.blit(data.No, (math.sin(zzmove_xy / 30) * -factor * 0.875 + 600 + width, height / 2 - 135))
+    pass
+
+
+def chose_anima(zzmove_xy, condition):
+    if condition:
+        factor = 2000
+    else:
+        factor = -2000
+
+    screen.blit(data.Choice_place, (width / 3 + 777, height / 3))
+    screen.blit(data.Choice_place, ((math.sin(zzmove_xy / 30) * factor * 0.3885 + width / 3, height / 3)))
+
+    pass
+
+def check_anima(zzmove_xy, condition, fig, hod):
+    if condition:
+        factor = 2000
+    else:
+        factor = -2000
+
+    screen.blit(Checks[data.getresol()][fig][hod], (width / 3 + 777, height / 3 - 110))
+    screen.blit(Checks[data.getresol()][fig][hod],
+                ((math.sin(zzmove_xy / 30) * factor * 0.3885 + width / 3, height / 3 - 110)))
+    pass
+
+'''
+def close_window():
+    global clo, yes_button, no_button, b
+    click = pygame.mouse.get_pressed(num_buttons=3)
+    if click[0]:
+        pygame.mixer.Sound.play(data.button_sound)
+    clo = 1
+    
+    yes_button.show()
+    no_button.show()
+
+
+def close_window_no():
+    global clo, yes_button, no_button, b
+    clo = 0
+    yes_button.hide()
+    no_button.hide()
+    click = pygame.mouse.get_pressed(num_buttons=3)
+    if click[0]:
+        pygame.mixer.Sound.play(data.button_sound)
+
+
+def close_game():
+    click = pygame.mouse.get_pressed(num_buttons=3)
+    if click[0]:
+        pygame.mixer.Sound.play(data.button_sound)
+    pygame.time.delay(100)
+    pygame.quit()
+    sys.exit()
+'''
+
+'''
 def choice_anima(zmove_xy, condition):
     global after_choice
     if condition:
@@ -441,7 +516,7 @@ def choice_anima(zmove_xy, condition):
 
     screen.blit(data.choice_place, (width / 4, height / 4 + math.sin(zmove_xy / 60) * factor))
     pass
-
+'''
 
 def Next(a):
     pygame.time.delay(200)
@@ -565,7 +640,12 @@ while 1:
             Next_resolition.paint(width / 7 * 3.785, height / 2.64, data.button_sound, 3, 0, 'next', action=Next)
 
             Back_sett.paint(width / 7 * 3.294, height / 1.7, data.button_sound, 0, 0, 'back_setts', action=back_setts)
-            screen.blit(data.Authorship, (width - width / 3, height - height / 6.5))
+
+            if data.getresol() == '1920':
+                screen.blit(data.Authorship, (width - 445, height - 55))
+            else:
+                screen.blit(data.Authorship, (width - width / 3, height - height / 6.5))
+
         else:
             screen.blit(data.placebutton2_2, (width / 2 - 132, height / 7 * 3.6 - 26 - 120 + after_but))
             screen.blit(data.setting_button, (width / 2 - 75, height / 7 * 3.6 - 120 + after_but))
@@ -575,7 +655,12 @@ while 1:
                                 data.button_sound, 0, 0, 'scroll', action=scroll)
             Exit_button.paint(width / 2 - 75, height / 7 * 5.2 - 120 + after_but,
                               data.button_sound, 0, 0, 'scroll', action=close_window)
-            screen.blit(data.Authorship, (width - width / 3, height - height / 6.5))
+
+            if data.getresol() == '1920':
+                screen.blit(data.Authorship, (width - 445, height - 55))
+            else:
+                screen.blit(data.Authorship, (width - width / 3, height - height / 6.5))
+
             Setting_button.paint(width / 2 - 75, height / 7 * 3.6 - 120, data.button_sound, 0, 0, 'setts', action=setts)
     
     if getSerb() == 1:
@@ -587,6 +672,22 @@ while 1:
         else:
             screen.blit(data.place_image_1440, [240, 60])
         blit_place()
+
+        if zzmove_xy <= math.pi * 15:
+            zzmove_xy += 1
+            chose_anima(zzmove_xy, True)
+        else:
+            zzmove_xy = 0
+
+        if zzzmove_xy <= math.pi * 15:
+            zzzmove_xy += 1
+            check_anima(zzzmove_xy, True, 'white', 0)
+        else:
+            zzzmove_xy = 0
+
+        # screen.blit(data.Choice_place, (width / 3 + 777, height / 3))
+        # screen.blit(data.CheckmateBlack, (width / 3 + 777, height / 3 - 110))
+
         if hod == 1 and getShah() == 0:
             for y1 in range(8):
                 for x1 in range(8):
@@ -642,7 +743,15 @@ while 1:
             screen.blit(data.runs[i - zzmove_xy // 4 % 3], (width / 9 * (4.03 + nums * 0.3), height / 2.5 + 17))
 
     if clo == 1:
-        screen.blit(data.clo_window, (560, 240))
+        # screen.blit(data.clo_window, (560, 240))
+        if zzmove_xy <= math.pi * 15:
+            zzmove_xy += 1
+            yesno(zzmove_xy, True)
+        else:
+            # after_but, after_but4 = (math.sin(zzmove_xy / 30) * 2000 / 25), math.sin(zzmove_xy / 30) * 2000 * 0.875
+            # after_but2, after_but3 = (math.sin(zzmove_xy / 60) * 4000), (math.sin(zzmove_xy / 450) * 1000)
+            zzmove_xy= 0
+            clo = 2
 
     clock.tick(60)
     pygame_widgets.update(events)
