@@ -36,7 +36,7 @@ size = width, height = 1920, 1080
 screen = pygame.display.set_mode(size)
 
 move_xy, zmove_xy, zzmove_xy, zzzmove_xy, move, after, \
-    after_but, after_but2, after_but3, after_but4 = [0 for _ in range(10)]
+    after_but, after_but2, after_but3, after_but4, after_yes, after_no = [0 for _ in range(12)]
 okno, clo, leg, sc, game, hod, fig, check, load, key, bk, songs, moment = [0 for _ in range(13)]
 
 backgrounds = {'1920': [data.background11, data.background12, data.background13, data.background14, data.background15],
@@ -448,8 +448,8 @@ def yesno(zzmove_xy, condition):
         factor = -2000
 
     # screen.blit(data.setting_menu, (math.sin(zzmove_xy / 30) * factor * 0.875 - 900 + after_but4, height / 2 / 1.7))
-    screen.blit(data.Yes, (math.sin(zzmove_xy / 30) * factor * 0.875 - 800, height / 2))
-    screen.blit(data.No, (math.sin(zzmove_xy / 30) * -factor * 0.875 + 600 + width, height / 2 - 135))
+    screen.blit(data.Yes, (math.sin(zzmove_xy / 30) * factor * 0.875 - 1250, height / 2 - 10))
+    screen.blit(data.No, (math.sin(zzmove_xy / 30) * -factor * 0.875 + 250 + width, height / 2 - 135 - 10))
     pass
 
 
@@ -539,6 +539,9 @@ def Back(a):
     else:
         data.setresol()
 
+
+yes_button = InvisButtons(150, 150)
+no_button = InvisButtons(150, 150)
 
 while 1:
     events = pygame.event.get()
@@ -748,10 +751,15 @@ while 1:
             zzmove_xy += 1
             yesno(zzmove_xy, True)
         else:
-            # after_but, after_but4 = (math.sin(zzmove_xy / 30) * 2000 / 25), math.sin(zzmove_xy / 30) * 2000 * 0.875
-            # after_but2, after_but3 = (math.sin(zzmove_xy / 60) * 4000), (math.sin(zzmove_xy / 450) * 1000)
-            zzmove_xy= 0
+            after_yes, after_no = (math.sin(zzmove_xy / 30) * 2000 * 0.875 - 1250), \
+                                  (math.sin(zzmove_xy / 30) * -2000 * 0.875 + 250 + width)
+            zzmove_xy = 0
             clo = 2
+
+    if clo == 2:
+        screen.blit(data.Yes, (after_yes, height / 2 - 10))
+        screen.blit(data.No, (after_no, height / 2 - 135 - 10))
+        yes_button.paint(after_yes, height / 2 - 75, data.button_sound, 0, 0, 'scroll', action=scroll)
 
     clock.tick(60)
     pygame_widgets.update(events)
