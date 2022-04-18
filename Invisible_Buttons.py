@@ -19,12 +19,13 @@ class InvisButtons:
 
             if name == 'scroll' or name == 'setts' or name == 'close_window' or name == 'scrolling':
                 screen.blit(stroke4, [x_coord, y_coord])
-            elif name == 'back_setts':
+            elif name == 'back_setts' or name == 'yes' or name == 'no':
                 screen.blit(stroke5, [x_coord, y_coord])
             elif name != 'back' and name != 'next':
                 screen.blit(stroke, [x_coord, y_coord])
 
-            if click[0] == 1 and action is not None and (name == 'next' or name == 'back'):
+            if click[0] == 1 and action is not None and (name == 'next' or name == 'back' or
+                                                         name == 'scroll' or name == 'mini_scroll' or name == 'devel'):
                 pygame.mixer.Sound.play(button_sound)
                 action(x)
 
