@@ -1,5 +1,6 @@
 import pygame
 from Invisible_Buttons import InvisButtons
+from data import poss
 
 pygame.init()
 clock = pygame.time.Clock()
@@ -33,4 +34,4 @@ class Board:
 
     # Панелька
     def place(self, x, y):
-        self.board[x][y] = InvisButtons(90, 90)
+        self.board[x][y] = InvisButtons(90 - poss[0], 90 - poss[0])

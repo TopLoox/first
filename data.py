@@ -11,6 +11,7 @@ stroke5 = pygame.image.load("Image/Blackout_button2.png")
 stroke_1440 = pygame.image.load("Image/Blackout_place_1440.png")
 stroke2_1440 = pygame.image.load("Image/Blackout_place2_1440.png")
 stroke3_1440 = pygame.image.load("Image/Blackout_place3_1440.png")
+Mini_stroke = pygame.image.load('Image/Mini_blackout.png')
 lobby_image = pygame.image.load('Image/new_lobby2.png')
 background11 = pygame.image.load('Image/background.png')
 background12 = pygame.image.load('Image/background2.png')
@@ -116,6 +117,7 @@ forest_songs = pygame.mixer.Sound('Sounds/forest.mp3')
 fortress_songs = pygame.mixer.Sound('Sounds/fortress.mp3')
 on_call_songs = pygame.mixer.Sound('Sounds/on_call.mp3')
 
+# корректировка размеры доски / длины / ширины
 moment, poss = 0, [0, 0, 0]
 resolition = '1920'
 after_coord = {'lower': {1: (137, 544), 2: (247, 544), 3: (357, 544), 4: (137, 654), 5: (247, 654)},
@@ -130,7 +132,7 @@ def getposs():
 def setresol():
     global resolition, poss
     if resolition == '1920':
-        resolition, poss = '1440', [23, -96, -91]
+        resolition, poss = '1440', [22.5, -97, -90]
     else:
         resolition, poss = '1920', [0, 0, 0]
 
