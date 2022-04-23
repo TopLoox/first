@@ -6,6 +6,14 @@ from Chess_pieces.Queen import Queen
 from Chess_pieces.King import King
 
 from Chess_pieces.Figurestype import Figures, Black, White, black_castle, white_castle, white_king, black_king
+from Chess_pieces.Pawn import Pawn
+from Chess_pieces.Horse import Horse
+from Chess_pieces.Elephant import Elephant
+from Chess_pieces.Castle import Castle
+from Chess_pieces.Queen import Queen
+from Chess_pieces.King import King
+
+from Chess_pieces.Figurestype import Figures, Black, White, black_castle, white_castle, white_king, black_king
 
 def getCastlin():
     return castlin
@@ -13,7 +21,7 @@ def getCastlin():
 def getMoveing():
     return moveing
 
-def con(fig, x, y, Clr):
+def con(fig, x, y, Clr, phant):
     global castlin, moveing
     if type(fig) == Horse:
         if fig.testmotion(x, y) == 0:
@@ -74,11 +82,11 @@ def con(fig, x, y, Clr):
             for p in white_castle.values():
                 if (cord[1] == y) and (fig.getCount() == 0) and (p.getCount() == 0):
                     cord2 = p.coord()
-                    if (cord[0] - x == 2) and (cord2[0] - x == -2) and (con(p, x + 1, y, Clr)):
+                    if (cord[0] - x == 2) and (cord2[0] - x == -2) and (con(p, x + 1, y, Clr,phant)) and(con(fig, x + 1, y, Clr,phant)):
                         castlin = p
                         moveing = x + 1
                         return True
-                    elif (cord2[0] - x == 1) and (x - cord[0] == 2) and (con(p, x - 1, y, Clr)):
+                    elif (cord2[0] - x == 1) and (x - cord[0] == 2) and (con(p, x - 1, y, Clr,phant)) and (con(fig, x + 1, y, Clr,phant)):
                         castlin = p
                         moveing = x - 1
                         return True
@@ -86,11 +94,11 @@ def con(fig, x, y, Clr):
             for p in black_castle.values():
                 if (cord[1] == y) and (fig.getCount() == 0) and (p.getCount() == 0):
                     cord2 = p.coord()
-                    if (cord[0] - x == 2) and (cord2[0] - x == -2) and (con(p, x + 1, y, Clr)):
+                    if (cord[0] - x == 2) and (cord2[0] - x == -2) and (con(p, x + 1, y, Clr,phant)) and (con(fig, x + 1, y, Clr,phant)):
                         castlin = p
                         moveing = x + 1
                         return True
-                    elif (cord2[0] - x == 1) and (x - cord[0] == 2) and (con(p, x - 1, y, Clr)):
+                    elif (cord2[0] - x == 1) and (x - cord[0] == 2) and (con(p, x - 1, y, Clr,phant)) and (con(fig, x + 1, y, Clr,phant)):
                         castlin = p
                         moveing = x - 1
                         return True
@@ -105,7 +113,7 @@ def con(fig, x, y, Clr):
                         for figs2 in Black:
                             for p in figs2.values():
                                 if (type(p) != King) and (type(p) != Pawn):
-                                    outing = con(p, x, y, Clr)
+                                    outing = con(p, x, y, Clr,phant)
                                     if outing == True:
                                         return False
                                 elif type(p) == King:
@@ -120,7 +128,7 @@ def con(fig, x, y, Clr):
                         for figs2 in White:
                             for p in figs2.values():
                                 if (type(p) != King) and (type(p) != Pawn):
-                                    outing = con(p, x, y, Clr)
+                                    outing = con(p, x, y, Clr,phant)
                                     if outing == True:
                                         return False
                                 elif type(p) == King:
@@ -164,8 +172,9 @@ def con(fig, x, y, Clr):
             for figs in Black:
                 for m in figs.values():
                     cord2 = m.coord()
-
-                    if (abs(cord[0] - cord2[0]) == 1) and (cord[1] - cord2[1] == 1) and (cord2 == [x, y]):
+                    cordph = phant.coord() 
+                    if ((abs(cord[0] - cord2[0]) == 1) and (cord[1] - cord2[1] == 1) and (cord2 == [x, y])) or \
+                                ((abs(cord[0] - cordph[0]) == 1) and (cord[1] - cordph[1] == 1) and (cordph == [x, y])):
                         return True
 
             for figs in Figures:
@@ -181,8 +190,9 @@ def con(fig, x, y, Clr):
             for figs in White:
                 for m in figs.values():
                     cord2 = m.coord()
-
-                    if (abs(cord[0] - cord2[0]) == 1) and (cord2[1] - cord[1] == 1) and (cord2 == [x, y]):
+                    cordph = phant.coord()
+                    if ((abs(cord[0] - cord2[0]) == 1) and (cord2[1] - cord[1] == 1) and (cord2 == [x, y])) or \
+                                ((abs(cord[0] - cordph[0]) == 1) and (cordph[1] - cord[1] == 1) and (cordph == [x, y])):
                         return True
 
             for figs in Figures:
@@ -195,92 +205,92 @@ def con(fig, x, y, Clr):
             return True
 
 
-def shahcon(shahfig, king_x, king_y, fig, x, y, Clr):
+def shahcon(shahfig, king_x, king_y, fig, x, y, Clr, phant):
     shah_coord = shahfig.coord()
     if type(shahfig) == Pawn or type(shahfig) == Horse:
-        if shah_coord == [x, y] and con(fig, x, y, Clr) and type(fig) != King:
+        if shah_coord == [x, y] and con(fig, x, y, Clr, phant) and type(fig) != King:
             return True
         elif type(fig) == King:
-            return con(fig, x, y, Clr) 
+            return con(fig, x, y, Clr, phant) 
         else:
             return False
 
     elif type(shahfig) == Castle:
-        if shah_coord == [x, y] and con(fig, x, y, Clr) and type(fig) != King:
+        if shah_coord == [x, y] and con(fig, x, y, Clr, phant) and type(fig) != King:
             return True
         elif type(fig) == King:
-            return con(fig, x, y, Clr)
+            return con(fig, x, y, Clr, phant)
         elif x == king_x == shah_coord[0]:
             if shah_coord[1] < king_y:
-                if shah_coord[1] < y < king_y and con(fig, x, y, Clr):
+                if shah_coord[1] < y < king_y and con(fig, x, y, Clr, phant):
                     return True
             else:
-                if shah_coord[1] > y > king_y and con(fig, x, y, Clr):
+                if shah_coord[1] > y > king_y and con(fig, x, y, Clr, phant):
                     return True
         elif y == king_y == shah_coord[1]:
             if shah_coord[0] < king_x:
-                if shah_coord[0] < x < king_x and con(fig, x, y, Clr):
+                if shah_coord[0] < x < king_x and con(fig, x, y, Clr, phant):
                     return True
             else:
-                if shah_coord[0] > x > king_x and con(fig, x, y, Clr):
+                if shah_coord[0] > x > king_x and con(fig, x, y, Clr, phant):
                     return True
         else:
             return False
     
     elif type(shahfig) == Elephant:
-        if shah_coord == [x, y] and con(fig, x, y, Clr) and type(fig) != King:
+        if shah_coord == [x, y] and con(fig, x, y, Clr, phant) and type(fig) != King:
             return True
         elif type(fig) == King:
-            return con(fig, x, y, Clr)
+            return con(fig, x, y, Clr, phant)
         elif shah_coord[0] < king_x:
             if shah_coord[1] < king_y:
-                if (shah_coord[0] < x < king_x) and (shah_coord[1] < y < king_y) and con(fig, x, y, Clr) and (abs(x - king_x) == abs(y - king_y)):
+                if (shah_coord[0] < x < king_x) and (shah_coord[1] < y < king_y) and con(fig, x, y, Clr, phant) and (abs(x - king_x) == abs(y - king_y)):
                     return True
             elif shah_coord[1] > king_y:
-                if (shah_coord[0] < x < king_x) and (shah_coord[1] > y > king_y) and con(fig, x, y, Clr) and (abs(x - king_x) == abs(y - king_y)):
+                if (shah_coord[0] < x < king_x) and (shah_coord[1] > y > king_y) and con(fig, x, y, Clr, phant) and (abs(x - king_x) == abs(y - king_y)):
                     return True
         elif shah_coord[0] > king_x:
             if shah_coord[1] < king_y:
-                if (shah_coord[0] > x > king_x) and (shah_coord[1] < y < king_y) and con(fig, x, y, Clr) and (abs(x - king_x) == abs(y - king_y)):
+                if (shah_coord[0] > x > king_x) and (shah_coord[1] < y < king_y) and con(fig, x, y, Clr, phant) and (abs(x - king_x) == abs(y - king_y)):
                     return True
             elif shah_coord[1] > king_y:
-                if (shah_coord[0] > x > king_x) and (shah_coord[1] > y > king_y) and con(fig, x, y, Clr) and (abs(x - king_x) == abs(y - king_y)):
+                if (shah_coord[0] > x > king_x) and (shah_coord[1] > y > king_y) and con(fig, x, y, Clr, phant) and (abs(x - king_x) == abs(y - king_y)):
                     return True
         else:
             return False
 
     elif type(shahfig) == Queen: 
-        if shah_coord == [x, y] and con(fig, x, y, Clr) and type(fig) != King:
+        if shah_coord == [x, y] and con(fig, x, y, Clr, phant) and type(fig) != King:
             return True
         elif type(fig) == King:
-            return con(fig, x, y, Clr)
+            return con(fig, x, y, Clr, phant)
         elif shah_coord[0] < king_x:
             if shah_coord[1] < king_y:
-                if (shah_coord[0] < x < king_x) and (shah_coord[1] < y < king_y) and con(fig, x, y, Clr) and (abs(x - king_x) == abs(y - king_y)):
+                if (shah_coord[0] < x < king_x) and (shah_coord[1] < y < king_y) and con(fig, x, y, Clr, phant) and (abs(x - king_x) == abs(y - king_y)):
                     return True
             elif shah_coord[1] > king_y:
-                if (shah_coord[0] < x < king_x) and (shah_coord[1] > y > king_y) and con(fig, x, y, Clr) and (abs(x - king_x) == abs(y - king_y)):
+                if (shah_coord[0] < x < king_x) and (shah_coord[1] > y > king_y) and con(fig, x, y, Clr, phant) and (abs(x - king_x) == abs(y - king_y)):
                     return True
         elif shah_coord[0] > king_x:
             if shah_coord[1] < king_y:
-                if (shah_coord[0] > x > king_x) and (shah_coord[1] < y < king_y) and con(fig, x, y, Clr) and (abs(x - king_x) == abs(y - king_y)):
+                if (shah_coord[0] > x > king_x) and (shah_coord[1] < y < king_y) and con(fig, x, y, Clr, phant) and (abs(x - king_x) == abs(y - king_y)):
                     return True
             elif shah_coord[1] > king_y:
-                if (shah_coord[0] > x > king_x) and (shah_coord[1] > y > king_y) and con(fig, x, y, Clr) and (abs(x - king_x) == abs(y - king_y)):
+                if (shah_coord[0] > x > king_x) and (shah_coord[1] > y > king_y) and con(fig, x, y, Clr, phant) and (abs(x - king_x) == abs(y - king_y)):
                     return True
         elif x == king_x == shah_coord[0]:
             if shah_coord[1] < king_y:
-                if shah_coord[1] < y < king_y and con(fig, x, y, Clr):
+                if shah_coord[1] < y < king_y and con(fig, x, y, Clr, phant):
                     return True
             else:
-                if shah_coord[1] > y > king_y and con(fig, x, y, Clr):
+                if shah_coord[1] > y > king_y and con(fig, x, y, Clr, phant):
                     return True
         elif y == king_y == shah_coord[1]:
             if shah_coord[0] < king_x:
-                if shah_coord[0] < x < king_x and con(fig, x, y, Clr):
+                if shah_coord[0] < x < king_x and con(fig, x, y, Clr, phant):
                     return True
             else:
-                if shah_coord[0] > x > king_x and con(fig, x, y, Clr):
+                if shah_coord[0] > x > king_x and con(fig, x, y, Clr, phant):
                     return True
         else:
             return False  
