@@ -1,3 +1,4 @@
+from tkinter.messagebox import NO
 from Values import *
 
 
@@ -7,7 +8,7 @@ class InvisButtons:
         self.__inactive_height = inactive_height
         self.__press = 0
 
-    def paint(self, x_coord, y_coord, button_sound, x, y, name, action):
+    def paint(self, x_coord, y_coord, button_sound, x, y, name, action, srh = None, dop_values = None):
         mouse = pygame.mouse.get_pos()
         click = pygame.mouse.get_pressed(num_buttons=3)
 
@@ -33,6 +34,10 @@ class InvisButtons:
                         pygame.mixer.Sound.play(button_sound)
                         action(x)
                         self.__press = 1
+
+                elif srh == 'change':
+                    action(dop_values, x, y, name)
+
                 else:
                     if self.__press == 0:
                         pygame.mixer.Sound.play(button_sound)

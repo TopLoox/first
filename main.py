@@ -1,5 +1,7 @@
+from concurrent.futures.process import _check_system_limits
 import sys
 import math
+from tkinter import Y
 
 import pygame_widgets
 
@@ -10,7 +12,7 @@ from Chess_pieces.Pawn import Pawn
 from Chess_pieces.King import King
 from Chess_pieces.Figurestype import Figures, Black, White
 
-from client import getChcd, getClr, getPart, send_server, createpotok, getSerb, getShah, getShahfig, getShahCoord, getPh, getPhFig, getFin
+from client import getChClr, getChcd, getClr, getPart, send_server, createpotok, getSerb, getShah, getShahfig, getShahCoord, getPh, getPhFig, getFin
 
 from Chess_pieces.figcon import con, getCastlin, getMoveing, shahcon
 from Values import *
@@ -39,6 +41,10 @@ no_button = InvisButtons(143, 43)
 Devel_butt = InvisButtons(143, 43)
 turn_button = InvisButtons(35, 35)
 back_button = InvisButtons(35, 35)
+horse_button = InvisButtons(90, 90)
+el_button = InvisButtons(90, 90)
+castle_button = InvisButtons(90, 90)
+queen_button = InvisButtons(90, 90)
 
 # Доска
 b = Board()
@@ -130,19 +136,25 @@ def turn_song():
         song_turn = 1
 
 
+def getDates(x, y, key):
+    global chX, chY, chKey
+    chX = x
+    chY = y
+    chKey = key
+
+
 def connect(x, y):
     global hod, fig, load, key
     pygame.time.delay(200)
     condition = True
     part = getPart()
-    if getChcd() == False:
+    if not getChcd():
         if getClr() == 'White':
             if part % 2 == 0:
                 if hod == 0:
                     for figs in White:
                         for m in figs.values():
                             cord = m.coord()
-
                             if x == cord[0] and y == cord[1]:
                                 hod, fig, load = 1, m, 1
                 else:
@@ -167,7 +179,8 @@ def connect(x, y):
                                     break
                             Choose_condition = True
                             send_server(f'{Choose_condition} {"White"} {""}') 
-                            pygame.time.delay(200)  
+                            pygame.time.delay(200)
+                            getDates(x, y, key)  
 
                         cord = fig.coord()
                         for figs in Black:
@@ -343,8 +356,6 @@ def connect(x, y):
                         fig.ret()
                     else:
                         fig.ret()
-    else:
-        chose_anima(True)
 
 
 # Сокращающие код функции
@@ -619,16 +630,28 @@ def dev_anima(zzmove_xy, condition):
 
 
 # Анимация выдвижения выбора
-def chose_anima(condition):   
+def chose_anima(condition, x, y, keys):   
     if condition:
         factor = 2000
     else:
         factor = -2000
 
-    screen.blit(Choice_place, (width / 3 + 777, height / 3))
-    screen.blit(choice, (width / 3 + 777, height / 3))
-    screen.blit(Choice_white, (width / 3 + 777, height / 3))
+    screen.blit(Choice_place, (width / 3 + 777, height / 3 - 110))
+    screen.blit(choice, (width / 3 + 777, height / 3 - 110))
+    screen.blit(Choice_white, (width / 3 + 777, height / 3 - 110))
+
+    horse_button.paint(width / 3 + 777, height / 3 - 110, button_sound, x, y, 'Horse', action=change, srh='change', dop_values=keys)
+    el_button.paint(width / 3 + 887, height / 3 - 110, button_sound, x, y, 'Elephant', action=change, srh='change', dop_values=keys)
+    castle_button.paint(width / 3 + 997, height / 3 - 110, button_sound, x, y, 'Castle', action=change, srh='change', dop_values=keys)
+    queen_button.paint(width / 3 + 1007, height / 3 - 110, button_sound, x, y, 'Queen', action=change, srh='change', dop_values=keys)
+
     #screen.blit(Choice_place, ((math.sin(zzmove_xy / 30) * factor * 0.3885 + width / 3, height / 3)))
+
+
+#Отправляем на сервер инфу об изменении пешки
+def change(key, x, y, figs):
+    send_server(f'{key} {x} {y} {figs} {getClr()}')
+
 
 # Анимация предупреждения о шахе / мате
 def check_anima(zzmove_xy, condition, fig, hod):
@@ -637,7 +660,7 @@ def check_anima(zzmove_xy, condition, fig, hod):
     else:
         factor = -2000
 
-    screen.blit(Checks[getresol()][fig][hod], (width / 3 + 777 + poss[1], height / 3 - 110 - poss[2]))
+    screen.blit(Checks[getresol()][fig][hod], (width / 3 + 777 + poss[1], height / 3 - poss[2]))
     #screen.blit(Checks[getresol()][fig][hod],
                 #((math.sin(zzmove_xy / 30) * factor * 0.3885 + width / 3, height / 3 - 110)))
 
@@ -946,6 +969,12 @@ while 1:
             zmove_xy += 1
 
             # screen.blit(go, (-(math.cos(zmove_xy / 12) * 2300) - 300, 0))
+
+    if getChcd():
+        if getChClr() == getClr():
+            chose_anima(True, chX, chY, chKey)
+        else:
+            chose_anima(True, 0, 0, '0')
 
     if load == 1:
         fig.movement_pict()

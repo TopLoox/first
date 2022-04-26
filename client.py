@@ -59,11 +59,12 @@ def getChClr():
     return Choose_Color
 
 def server_listen(room):
-    global part, Clr, Serb, shah, outClr, shah_fig, shah_coord, ph, phantom, fin, Choose_condition, Choose_Color
+    global part, Clr, Serb, shah, outClr, shah_fig, shah_coord, ph, phantom, fin, Choose_condition, Choose_Color, check_change
     while True:
         data = client.recv(2048).decode("utf-8").split(' ')
         print(data)
         TEST = True
+        check_change = 0
         if len(data) == 4:
             for i in Figures:
                 if data[0] in i:
@@ -147,13 +148,16 @@ def server_listen(room):
             for dicts in Figures:
                 if key in dicts:
                     if figs == 'Horse':
-                        dicts[key] == Horse(x, y, getClr())
+                        dicts[key] = Horse(x, y, data[4])
                     elif figs == 'Castle':
-                        dicts[key] == Castle(x, y, getClr())
+                        dicts[key] = Castle(x, y, data[4])
                     elif figs == 'Elephant':
-                        dicts[key] == Elephant(x, y, getClr())
+                        dicts[key] = Elephant(x, y, data[4])
                     elif figs =='Queen':
-                        dicts[key] == Queen(x, y, getClr())
+                        dicts[key] = Queen(x, y, data[4])
+                    check_change = 1
+                    Choose_condition = 0
+                    
 
         elif len(data) == 3:
             Choose_condition = data[0]
